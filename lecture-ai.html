@@ -412,10 +412,20 @@ document.querySelectorAll(".tab").forEach(tab=>{
 /* ── Gemini generateContent ── */
 async function geminiCall(parts){
   const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-  const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})});
-  if(!res.ok){const b=await res.json().catch(()=>({}));const m=b?.error?.message||res.statusText;if(res.status===403)throw new Error("APIキーが無効です。");if(res.status===429)throw new Error("APIレート制限。1〜2分待ってから再試行してください。");throw new Error("Gemini APIエラー ("+res.status+"): "+m);}
-  const data=await res.json();const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if(!text)throw new Error("Geminiから空の返答が返されました。");return text;
+  // 429が来たら最大3回リトライ（60秒待機）
+  for(let attempt=0;attempt<3;attempt++){
+    const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})});
+    if(res.status===429){
+      if(attempt===2)throw new Error("APIレート制限が続いています。数分後に再試行してください。");
+      setProgress(null,"レート制限中... 60秒後に再試行します");
+      await sleep(60000);
+      continue;
+    }
+    if(!res.ok){const b=await res.json().catch(()=>({}));const m=b?.error?.message||res.statusText;if(res.status===403)throw new Error("APIキーが無効です。");throw new Error("Gemini APIエラー ("+res.status+"): "+m);}
+    const data=await res.json();const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!text)throw new Error("Geminiから空の返答が返されました。");
+    return text;
+  }
 }
 
 /* ── Files API: upload ── */
@@ -449,23 +459,30 @@ async function uploadToFilesAPI(file){
 
 /* ── Files API: wait for ACTIVE ── */
 async function waitForFileActive(fileName){
-  setProgress(42,"Geminiがファイルを処理中...");
-  // 5秒間隔で最大60回（5分）待機。429が来たら10秒待ってリトライ
-  for(let i=0;i<60;i++){
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${API_KEY}`);
+  // 最初に30秒待機してリクエスト数を節約
+  setProgress(42,"Geminiがファイルを準備中... (30秒待機)");
+  await sleep(30000);
+
+  // 15秒間隔で最大40回（10分）待機。429が来たら60秒待ってリトライ
+  for(let i=0;i<40;i++){
+    const res=await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${API_KEY}`
+    );
     if(res.status===429){
-      setProgress(42,`レート制限中、10秒後に再試行... (${i+1}/60)`);
-      await sleep(10000);
+      setProgress(42,"レート制限中... 60秒後に再試行します");
+      await sleep(60000);
       continue;
     }
     const data=await res.json();
-    if(data.state==="ACTIVE")return data;
-    if(data.state==="FAILED")throw new Error("ファイルの処理に失敗しました（FAILED状態）");
-    const elapsed=Math.round((i+1)*5/60*100);
-    setProgress(42,`Geminiがファイルを処理中... (${Math.min(elapsed,99)}%)`);
-    await sleep(5000);
+    if(data.state==="ACTIVE"){
+      setProgress(55,"ファイル処理完了！文字起こしを開始します");
+      return data;
+    }
+    if(data.state==="FAILED") throw new Error("ファイルの処理に失敗しました（FAILED状態）");
+    setProgress(42,`Geminiが処理中... (約${30+i*15}秒経過)`);
+    await sleep(15000);
   }
-  throw new Error("ファイル処理がタイムアウトしました（5分）");
+  throw new Error("ファイル処理がタイムアウトしました（10分）");
 }
 
 /* ── Files API: delete ── */
@@ -486,13 +503,13 @@ async function run(){
     uploadedFileName=uploadedFile.name;
     const activeFile=await waitForFileActive(uploadedFile.name);
 
-    setProgress(55,"Geminiで文字起こし中...");
+    setProgress(58,"Geminiで文字起こし中...");
     const transcript=await geminiCall([
       {file_data:{mime_type:activeFile.mimeType||guessMime(audioFile),file_uri:activeFile.uri}},
       {text:"以下の音声を日本語で正確に文字起こししてください。話者が複数いる場合は「話者A:」のように区別してください。句読点・改行を適切に付けてください。文字起こしのテキストのみ出力してください。"}
     ]);
 
-    setProgress(75,"Geminiで要約中...");
+    setProgress(78,"Geminiで要約中...");
     const parts=[];
     if(docFile){
       const docB64=await fileToB64(docFile);
@@ -505,7 +522,7 @@ async function run(){
     parts.push({text:prompt});
     const summary=await geminiCall(parts);
 
-    setProgress(92,"履歴に保存中...");
+    setProgress(93,"履歴に保存中...");
     const titleMatch=summary.match(/【授業テーマ】\s*\n([^\n]+)/);
     const title=titleMatch?titleMatch[1].trim():audioFile.name.replace(/\.[^.]+$/,"");
     await dbAdd({title,summary,transcript,fileName:audioFile.name,docName:docFile?docFile.name:null,createdAt:Date.now()});
