@@ -347,6 +347,7 @@ function guessMime(f){if(f.type)return f.type;const m={mp3:"audio/mpeg",m4a:"aud
 function fmtDate(ts){const d=new Date(ts);return`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;}
 function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function copyText(text){navigator.clipboard.writeText(text).then(()=>toast("コピーしました ✓")).catch(()=>{const ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);toast("コピーしました ✓");});}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 
 /* ── Theme ── */
 function applyTheme(){
@@ -408,22 +409,20 @@ document.querySelectorAll(".tab").forEach(tab=>{
   });
 });
 
-/* ── Gemini API ── */
+/* ── Gemini generateContent ── */
 async function geminiCall(parts){
   const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
   const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})});
-  if(!res.ok){const b=await res.json().catch(()=>({}));const m=b?.error?.message||res.statusText;if(res.status===403)throw new Error("APIキーが無効です。");if(res.status===429)throw new Error("APIレート制限。しばらく待ってから再試行してください。");throw new Error("Gemini APIエラー ("+res.status+"): "+m);}
+  if(!res.ok){const b=await res.json().catch(()=>({}));const m=b?.error?.message||res.statusText;if(res.status===403)throw new Error("APIキーが無効です。");if(res.status===429)throw new Error("APIレート制限。1〜2分待ってから再試行してください。");throw new Error("Gemini APIエラー ("+res.status+"): "+m);}
   const data=await res.json();const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
   if(!text)throw new Error("Geminiから空の返答が返されました。");return text;
 }
 
-/* ── Gemini Files API ── */
+/* ── Files API: upload ── */
 async function uploadToFilesAPI(file){
   const mime=guessMime(file);
   const sizeMB=(file.size/1024/1024).toFixed(1);
   setProgress(10,`アップロード開始中... (${sizeMB} MB)`);
-
-  // Step1: resumable upload開始
   const initRes=await fetch(
     `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${API_KEY}`,
     {method:"POST",headers:{
@@ -437,10 +436,7 @@ async function uploadToFilesAPI(file){
   if(!initRes.ok){const b=await initRes.json().catch(()=>({}));throw new Error("アップロード開始失敗: "+(b?.error?.message||initRes.status));}
   const uploadUrl=initRes.headers.get("X-Goog-Upload-URL");
   if(!uploadUrl)throw new Error("アップロードURLが取得できませんでした。APIキーを確認してください。");
-
   setProgress(25,`Geminiにアップロード中... (${sizeMB} MB)`);
-
-  // Step2: ファイル本体を送信
   const uploadRes=await fetch(uploadUrl,{method:"POST",headers:{
     "Content-Length":String(file.size),
     "X-Goog-Upload-Offset":"0",
@@ -448,21 +444,31 @@ async function uploadToFilesAPI(file){
   },body:file});
   if(!uploadRes.ok)throw new Error("ファイルのアップロードに失敗しました: "+uploadRes.status);
   const uploadData=await uploadRes.json();
-  return uploadData.file; // { name, uri, mimeType, state, ... }
+  return uploadData.file;
 }
 
+/* ── Files API: wait for ACTIVE ── */
 async function waitForFileActive(fileName){
   setProgress(42,"Geminiがファイルを処理中...");
-  for(let i=0;i<40;i++){
+  // 5秒間隔で最大60回（5分）待機。429が来たら10秒待ってリトライ
+  for(let i=0;i<60;i++){
     const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${API_KEY}`);
+    if(res.status===429){
+      setProgress(42,`レート制限中、10秒後に再試行... (${i+1}/60)`);
+      await sleep(10000);
+      continue;
+    }
     const data=await res.json();
     if(data.state==="ACTIVE")return data;
     if(data.state==="FAILED")throw new Error("ファイルの処理に失敗しました（FAILED状態）");
-    await new Promise(r=>setTimeout(r,2000));
+    const elapsed=Math.round((i+1)*5/60*100);
+    setProgress(42,`Geminiがファイルを処理中... (${Math.min(elapsed,99)}%)`);
+    await sleep(5000);
   }
-  throw new Error("ファイル処理がタイムアウトしました（80秒）");
+  throw new Error("ファイル処理がタイムアウトしました（5分）");
 }
 
+/* ── Files API: delete ── */
 function deleteFile(fileName){
   fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${API_KEY}`,{method:"DELETE"}).catch(()=>{});
 }
@@ -476,21 +482,16 @@ async function run(){
   $("result-card").style.display="none";clearProgress();
   let uploadedFileName=null;
   try{
-    // 1. Files APIにアップロード
     const uploadedFile=await uploadToFilesAPI(audioFile);
     uploadedFileName=uploadedFile.name;
-
-    // 2. ACTIVEになるまで待機
     const activeFile=await waitForFileActive(uploadedFile.name);
 
-    // 3. 文字起こし
     setProgress(55,"Geminiで文字起こし中...");
     const transcript=await geminiCall([
       {file_data:{mime_type:activeFile.mimeType||guessMime(audioFile),file_uri:activeFile.uri}},
       {text:"以下の音声を日本語で正確に文字起こししてください。話者が複数いる場合は「話者A:」のように区別してください。句読点・改行を適切に付けてください。文字起こしのテキストのみ出力してください。"}
     ]);
 
-    // 4. 要約
     setProgress(75,"Geminiで要約中...");
     const parts=[];
     if(docFile){
@@ -504,7 +505,6 @@ async function run(){
     parts.push({text:prompt});
     const summary=await geminiCall(parts);
 
-    // 5. 履歴保存
     setProgress(92,"履歴に保存中...");
     const titleMatch=summary.match(/【授業テーマ】\s*\n([^\n]+)/);
     const title=titleMatch?titleMatch[1].trim():audioFile.name.replace(/\.[^.]+$/,"");
@@ -518,9 +518,8 @@ async function run(){
     $("result-card").style.display="flex";
     $("result-card").scrollIntoView({behavior:"smooth",block:"start"});
     toast("✅ 履歴に保存しました");
-
   }catch(e){
-    clearProgress();toast("エラー: "+(e.message||"不明なエラー"),5000);console.error(e);
+    clearProgress();toast("エラー: "+(e.message||"不明なエラー"),6000);console.error(e);
   }finally{
     if(uploadedFileName)deleteFile(uploadedFileName);
     btn.disabled=false;lbl.textContent="文字起こし＋要約を実行";refreshRunBtn();
@@ -563,7 +562,6 @@ async function renderHistory(){
     });
   });
 }
-
 async function updateHistBadge(){const items=await dbGetAll();$("hist-badge").style.display=items.length>0?"block":"none";}
 
 /* ── Modal ── */
@@ -612,10 +610,6 @@ function resetUI(){
   clearProgress();refreshRunBtn();
 }
 
-openDB().then(updateHistBadge).catch(e=>console.warn("IndexedDB:",e));
-</script>
-</body>
-</html>
 openDB().then(updateHistBadge).catch(e=>console.warn("IndexedDB:",e));
 </script>
 </body>
