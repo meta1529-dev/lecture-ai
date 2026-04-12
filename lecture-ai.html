@@ -42,6 +42,7 @@ input,textarea{font:inherit;color:inherit}
 button,input{transition:color var(--ease),background var(--ease),border-color var(--ease),box-shadow var(--ease)}
 :focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:var(--r-sm)}
 .hidden{display:none!important}
+
 #setup{display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:var(--s6)}
 .setup-card{width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s8);box-shadow:var(--sh-lg);display:flex;flex-direction:column;gap:var(--s5)}
 .setup-logo{display:flex;align-items:center;justify-content:center;gap:var(--s3)}
@@ -57,6 +58,7 @@ button,input{transition:color var(--ease),background var(--ease),border-color va
 .btn-start:hover{background:var(--primary-h)}
 .key-hint{font-size:var(--xs);color:var(--faint);text-align:center;line-height:1.6}
 .key-hint a{color:var(--primary);text-decoration:none}
+
 #app{display:flex;flex-direction:column;min-height:100dvh}
 .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);padding:var(--s4) var(--s5);display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh-sm)}
 .hdr-logo{display:flex;align-items:center;gap:var(--s3)}
@@ -126,7 +128,7 @@ input[type=file]{display:none}
 .hist-item-meta{display:flex;gap:var(--s3);margin-top:var(--s2);flex-wrap:wrap}
 .meta-chip{font-size:var(--xs);color:var(--muted);display:flex;align-items:center;gap:var(--s1)}
 .hist-item-preview{font-size:var(--xs);color:var(--muted);margin-top:var(--s2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6}
-.modal-overlay{position:fixed;inset:0;background:oklch(0.2 0.01 80/.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay{position:fixed;inset:0;background:oklch(0.2 0.01 80/.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.open{opacity:1;pointer-events:auto}
 .modal{background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0;width:100%;max-width:600px;max-height:90dvh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.16,1,.3,1)}
 .modal-overlay.open .modal{transform:translateY(0)}
@@ -210,7 +212,7 @@ input[type=file]{display:none}
           <div class="drop-zone" id="dz-audio" role="button" tabindex="0">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
             <p class="dz-label">タップして音声ファイルを選択</p>
-            <p class="dz-hint">MP3 / M4A / WAV / MP4 — 長時間音声OK（最大2GB）</p>
+            <p class="dz-hint">MP3 / M4A / WAV / MP4 — 最大2GB</p>
           </div>
           <input type="file" id="fi-audio" accept="audio/*,video/mp4,video/webm">
           <div class="pill hidden" id="pill-audio">
@@ -318,6 +320,13 @@ input[type=file]{display:none}
 <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
 <script>
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   モデル設定 — ここだけ変えればOK
+   gemini-2.5-flash（安定版・推奨）
+   gemini-2.5-pro（高精度・高コスト）
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+const GEMINI_MODEL = "gemini-2.5-flash";
+
 let API_KEY="",audioFile=null,docFile=null;
 let dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
 let currentModal=null;
@@ -340,7 +349,7 @@ function dbDelete(id){return new Promise((ok,ng)=>{const req=db.transaction(STOR
 
 /* ── Helpers ── */
 function toast(msg,ms=2800){const el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),ms);}
-function setProgress(pct,label){$("prog-wrap").style.display="block";$("prog-lbl").style.display="block";$("prog-bar").style.width=pct+"%";$("prog-lbl").textContent=label;}
+function setProgress(pct,label){$("prog-wrap").style.display="block";$("prog-lbl").style.display="block";if(pct!==null)$("prog-bar").style.width=pct+"%";$("prog-lbl").textContent=label;}
 function clearProgress(){$("prog-wrap").style.display=$("prog-lbl").style.display="none";$("prog-bar").style.width="0%";}
 function fileToB64(f){return new Promise((ok,ng)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=ng;r.readAsDataURL(f);});}
 function guessMime(f){if(f.type)return f.type;const m={mp3:"audio/mpeg",m4a:"audio/mp4",mp4:"audio/mp4",wav:"audio/wav",webm:"audio/webm",ogg:"audio/ogg",aac:"audio/aac"};return m[f.name.split(".").pop().toLowerCase()]||"audio/mpeg";}
@@ -409,30 +418,40 @@ document.querySelectorAll(".tab").forEach(tab=>{
   });
 });
 
-/* ── Gemini generateContent ── */
+/* ── Gemini generateContent（自動リトライ付き）── */
 async function geminiCall(parts){
-  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-  // 429が来たら最大3回リトライ（60秒待機）
-  for(let attempt=0;attempt<3;attempt++){
-    const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})});
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
+  for(let attempt=0;attempt<4;attempt++){
+    const res=await fetch(url,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})
+    });
     if(res.status===429){
-      if(attempt===2)throw new Error("APIレート制限が続いています。数分後に再試行してください。");
-      setProgress(null,"レート制限中... 60秒後に再試行します");
-      await sleep(60000);
+      const wait=60*(attempt+1);
+      setProgress(null,`レート制限中... ${wait}秒後に自動リトライ (${attempt+1}/4)`);
+      await sleep(wait*1000);
       continue;
     }
-    if(!res.ok){const b=await res.json().catch(()=>({}));const m=b?.error?.message||res.statusText;if(res.status===403)throw new Error("APIキーが無効です。");throw new Error("Gemini APIエラー ("+res.status+"): "+m);}
-    const data=await res.json();const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!res.ok){
+      const b=await res.json().catch(()=>({}));
+      const m=b?.error?.message||res.statusText;
+      if(res.status===403)throw new Error("APIキーが無効か、Billing未設定です。");
+      throw new Error(`Gemini APIエラー (${res.status}): ${m}`);
+    }
+    const data=await res.json();
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if(!text)throw new Error("Geminiから空の返答が返されました。");
     return text;
   }
+  throw new Error("レート制限が解消されませんでした。GCP Billingを有効にすると解決します。");
 }
 
-/* ── Files API: upload ── */
+/* ── Files API: アップロード ── */
 async function uploadToFilesAPI(file){
   const mime=guessMime(file);
   const sizeMB=(file.size/1024/1024).toFixed(1);
-  setProgress(10,`アップロード開始中... (${sizeMB} MB)`);
+  setProgress(10,`アップロード中... (${sizeMB} MB)`);
   const initRes=await fetch(
     `https://generativelanguage.googleapis.com/upload/v1beta/files?key=${API_KEY}`,
     {method:"POST",headers:{
@@ -453,31 +472,25 @@ async function uploadToFilesAPI(file){
     "X-Goog-Upload-Command":"upload, finalize"
   },body:file});
   if(!uploadRes.ok)throw new Error("ファイルのアップロードに失敗しました: "+uploadRes.status);
-  const uploadData=await uploadRes.json();
-  return uploadData.file;
+  return (await uploadRes.json()).file;
 }
 
-/* ── Files API: wait for ACTIVE ── */
+/* ── Files API: ACTIVE になるまで待機 ── */
 async function waitForFileActive(fileName){
-  // 最初に30秒待機してリクエスト数を節約
+  // 最初に30秒待機してリクエスト数を節約（無料枠対策）
   setProgress(42,"Geminiがファイルを準備中... (30秒待機)");
   await sleep(30000);
 
-  // 15秒間隔で最大40回（10分）待機。429が来たら60秒待ってリトライ
+  // 15秒間隔で最大40回（10分）ポーリング
   for(let i=0;i<40;i++){
-    const res=await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${API_KEY}`
-    );
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${API_KEY}`);
     if(res.status===429){
       setProgress(42,"レート制限中... 60秒後に再試行します");
       await sleep(60000);
       continue;
     }
     const data=await res.json();
-    if(data.state==="ACTIVE"){
-      setProgress(55,"ファイル処理完了！文字起こしを開始します");
-      return data;
-    }
+    if(data.state==="ACTIVE"){setProgress(55,"ファイル処理完了！文字起こしを開始します");return data;}
     if(data.state==="FAILED") throw new Error("ファイルの処理に失敗しました（FAILED状態）");
     setProgress(42,`Geminiが処理中... (約${30+i*15}秒経過)`);
     await sleep(15000);
@@ -485,12 +498,10 @@ async function waitForFileActive(fileName){
   throw new Error("ファイル処理がタイムアウトしました（10分）");
 }
 
-/* ── Files API: delete ── */
-function deleteFile(fileName){
-  fetch(`https://generativelanguage.googleapis.com/v1beta/${fileName}?key=${API_KEY}`,{method:"DELETE"}).catch(()=>{});
-}
+/* ── Files API: 削除 ── */
+function deleteFile(n){fetch(`https://generativelanguage.googleapis.com/v1beta/${n}?key=${API_KEY}`,{method:"DELETE"}).catch(()=>{});}
 
-/* ── Main run ── */
+/* ── メイン処理 ── */
 $("run-btn").addEventListener("click",run);
 async function run(){
   if(!audioFile||!API_KEY)return;
@@ -499,22 +510,20 @@ async function run(){
   $("result-card").style.display="none";clearProgress();
   let uploadedFileName=null;
   try{
-    const uploadedFile=await uploadToFilesAPI(audioFile);
-    uploadedFileName=uploadedFile.name;
-    const activeFile=await waitForFileActive(uploadedFile.name);
+    const uploaded=await uploadToFilesAPI(audioFile);
+    uploadedFileName=uploaded.name;
+    const active=await waitForFileActive(uploaded.name);
 
-    setProgress(58,"Geminiで文字起こし中...");
+    setProgress(58,`文字起こし中... (${GEMINI_MODEL})`);
     const transcript=await geminiCall([
-      {file_data:{mime_type:activeFile.mimeType||guessMime(audioFile),file_uri:activeFile.uri}},
+      {file_data:{mime_type:active.mimeType||guessMime(audioFile),file_uri:active.uri}},
       {text:"以下の音声を日本語で正確に文字起こししてください。話者が複数いる場合は「話者A:」のように区別してください。句読点・改行を適切に付けてください。文字起こしのテキストのみ出力してください。"}
     ]);
 
-    setProgress(78,"Geminiで要約中...");
+    setProgress(78,`要約中... (${GEMINI_MODEL})`);
     const parts=[];
     if(docFile){
-      const docB64=await fileToB64(docFile);
-      const docMime=docFile.type||(docFile.name.endsWith(".pdf")?"application/pdf":"text/plain");
-      parts.push({inline_data:{mime_type:docMime,data:docB64}});
+      parts.push({inline_data:{mime_type:docFile.type||(docFile.name.endsWith(".pdf")?"application/pdf":"text/plain"),data:await fileToB64(docFile)}});
     }
     let prompt="以下は授業の文字起こしです。";
     if(docFile)prompt+="また、講義資料も添付しています。文字起こしと資料を照らし合わせ、";
@@ -536,17 +545,16 @@ async function run(){
     $("result-card").scrollIntoView({behavior:"smooth",block:"start"});
     toast("✅ 履歴に保存しました");
   }catch(e){
-    clearProgress();toast("エラー: "+(e.message||"不明なエラー"),6000);console.error(e);
+    clearProgress();toast("❌ "+（e.message||"不明なエラー"),6000);console.error(e);
   }finally{
     if(uploadedFileName)deleteFile(uploadedFileName);
     btn.disabled=false;lbl.textContent="文字起こし＋要約を実行";refreshRunBtn();
   }
 }
 
-/* ── History ── */
+/* ── 履歴 ── */
 async function renderHistory(){
-  const list=$("hist-list");
-  const items=await dbGetAll();
+  const list=$("hist-list"),items=await dbGetAll();
   $("hist-count").textContent=items.length+"件";
   if(items.length===0){
     list.innerHTML=`<div class="hist-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg><h3>履歴はまだありません</h3><p>授業を要約すると、ここに自動で保存されます</p></div>`;
@@ -581,7 +589,7 @@ async function renderHistory(){
 }
 async function updateHistBadge(){const items=await dbGetAll();$("hist-badge").style.display=items.length>0?"block":"none";}
 
-/* ── Modal ── */
+/* ── モーダル ── */
 function openModal(item){
   currentModal=item;
   $("modal-title").textContent=item.title;
@@ -604,18 +612,27 @@ document.querySelectorAll(".modal-tab").forEach(tab=>{
     tab.classList.add("active");$("mpanel-"+tab.dataset.mtab).classList.add("active");
   });
 });
-$("modal-copy").addEventListener("click",()=>{if(!currentModal)return;const t=document.querySelector(".modal-tab.active").dataset.mtab;copyText(t==="summary"?currentModal.summary:currentModal.transcript);});
+$("modal-copy").addEventListener("click",()=>{
+  if(!currentModal)return;
+  const t=document.querySelector(".modal-tab.active").dataset.mtab;
+  copyText(t==="summary"?currentModal.summary:currentModal.transcript);
+});
 $("modal-export").addEventListener("click",()=>{
   if(!currentModal)return;
   const text=`【${currentModal.title}】\n保存日時: ${fmtDate(currentModal.createdAt)}\nファイル: ${currentModal.fileName}\n\n${"=".repeat(40)}\n要約\n${"=".repeat(40)}\n${currentModal.summary}\n\n${"=".repeat(40)}\n文字起こし\n${"=".repeat(40)}\n${currentModal.transcript}`;
   const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
-  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
   a.download=`${currentModal.title}_${fmtDate(currentModal.createdAt).replace(/[/:]/g,"-").replace(" ","-")}.txt`;
-  a.click();URL.revokeObjectURL(a.href);toast("テキストファイルを保存しました");
+  a.click();URL.revokeObjectURL(a.href);
+  toast("テキストファイルを保存しました");
 });
 
-/* ── Copy / Reset ── */
-$("btn-copy").addEventListener("click",()=>{const tab=document.querySelector(".tab.active").dataset.tab;copyText(tab==="summary"?$("box-summary").textContent:$("box-transcript").textContent);});
+/* ── コピー / リセット ── */
+$("btn-copy").addEventListener("click",()=>{
+  const tab=document.querySelector(".tab.active").dataset.tab;
+  copyText(tab==="summary"?$("box-summary").textContent:$("box-transcript").textContent);
+});
 $("btn-reset").addEventListener("click",resetUI);
 function resetUI(){
   audioFile=docFile=null;
