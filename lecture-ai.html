@@ -91,6 +91,17 @@ input[type=file]{display:none}
 .pill-rm:hover{color:var(--err);background:var(--err-hl)}
 .opt-div{display:flex;align-items:center;justify-content:center;gap:var(--s2);color:var(--faint);font-size:var(--xs)}
 .opt-div::before,.opt-div::after{content:'';flex:1;height:1px;background:var(--divider)}
+
+/* ── 要約レベルセレクター ── */
+.level-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.level-btn{display:flex;flex-direction:column;gap:4px;padding:var(--s4);background:var(--surface2);border:2px solid var(--border);border-radius:var(--r-lg);text-align:left;transition:border-color var(--ease),background var(--ease),box-shadow var(--ease);cursor:pointer}
+.level-btn:hover{border-color:var(--primary);background:var(--primary-hl)}
+.level-btn.active{border-color:var(--primary);background:var(--primary-hl);box-shadow:var(--sh-sm)}
+.level-btn .lv-icon{font-size:1.3rem;line-height:1}
+.level-btn .lv-name{font-size:var(--sm);font-weight:700;color:var(--text)}
+.level-btn .lv-desc{font-size:var(--xs);color:var(--muted);line-height:1.4}
+.level-btn .lv-tokens{font-size:var(--xs);color:var(--faint);margin-top:2px}
+
 .run-btn{width:100%;padding:var(--s4);background:var(--primary);color:#fff;font-size:var(--base);font-weight:700;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;gap:var(--s3)}
 .run-btn:hover:not(:disabled){background:var(--primary-h)}
 .run-btn:disabled{opacity:.45;cursor:not-allowed}
@@ -125,6 +136,7 @@ input[type=file]{display:none}
 .hist-item-del:hover{background:var(--err-hl);color:var(--err)}
 .hist-item-meta{display:flex;gap:var(--s3);margin-top:var(--s2);flex-wrap:wrap}
 .meta-chip{font-size:var(--xs);color:var(--muted);display:flex;align-items:center;gap:var(--s1)}
+.meta-chip.lv{background:var(--primary-hl);color:var(--primary);border-radius:var(--r-full);padding:1px var(--s2);font-weight:600}
 .hist-item-preview{font-size:var(--xs);color:var(--muted);margin-top:var(--s2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6}
 .modal-overlay{position:fixed;inset:0;background:oklch(0.2 0.01 80/.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-overlay.open{opacity:1;pointer-events:auto}
@@ -199,6 +211,7 @@ input[type=file]{display:none}
 
   <div class="page active" id="page-home">
     <main>
+      <!-- ① 音声ファイル -->
       <div class="card">
         <div class="card-hdr">
           <div class="card-icon">
@@ -223,6 +236,7 @@ input[type=file]{display:none}
 
       <div class="opt-div">＋ 講義資料を追加（任意）</div>
 
+      <!-- ② 講義資料 -->
       <div class="card">
         <div class="card-hdr">
           <div class="card-icon">
@@ -241,6 +255,44 @@ input[type=file]{display:none}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             <span class="pill-name" id="pn-doc"></span>
             <button class="pill-rm" id="rm-doc" aria-label="削除"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ 要約レベル（新規追加） -->
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <div><p class="card-title">③ 要約レベル</p><p class="card-sub" id="level-sub">標準 — バランスの取れた要約</p></div>
+        </div>
+        <div class="card-body">
+          <div class="level-grid" id="level-grid">
+            <button class="level-btn" data-level="compact" aria-pressed="false">
+              <span class="lv-icon">⚡</span>
+              <span class="lv-name">コンパクト</span>
+              <span class="lv-desc">要点のみ素早くまとめる</span>
+              <span class="lv-tokens">〜500字</span>
+            </button>
+            <button class="level-btn active" data-level="standard" aria-pressed="true">
+              <span class="lv-icon">📋</span>
+              <span class="lv-name">標準</span>
+              <span class="lv-desc">バランスの取れた要約</span>
+              <span class="lv-tokens">〜1,500字</span>
+            </button>
+            <button class="level-btn" data-level="detailed" aria-pressed="false">
+              <span class="lv-icon">📚</span>
+              <span class="lv-name">詳細</span>
+              <span class="lv-desc">説明・例も含む詳細版</span>
+              <span class="lv-tokens">〜4,000字</span>
+            </button>
+            <button class="level-btn" data-level="full" aria-pressed="false">
+              <span class="lv-icon">🎓</span>
+              <span class="lv-name">完全ノート</span>
+              <span class="lv-desc">講義ノートレベルで網羅</span>
+              <span class="lv-tokens">〜8,000字以上</span>
+            </button>
           </div>
         </div>
       </div>
@@ -319,87 +371,188 @@ input[type=file]{display:none}
 
 <script>
 const GEMINI_MODEL = "gemini-2.5-flash";
-
 let API_KEY="",audioFile=null,docFile=null;
 let dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
 let currentModal=null;
-const $=id=>document.getElementById(id);
+let summaryLevel="standard";
+const $=function(id){return document.getElementById(id);};
+
+/* ── 要約レベル設定 ── */
+var LEVEL_CONFIG={
+  compact:{
+    label:"コンパクト",
+    maxTokens:3000,
+    prompt:function(hasDoc){
+      var p="以下は授業の文字起こしです。";
+      if(hasDoc)p+="講義資料も添付しています。資料も参照して、";
+      p+="\n授業内容を【コンパクト形式】で日本語にまとめてください。\n\n";
+      p+="出力ルール：\n";
+      p+="- 音声の長さに関わらず、全体を500字前後に収める\n";
+      p+="- 冗長な説明は省き、最重要情報のみ抽出する\n\n";
+      p+="【授業テーマ】\n（一文で）\n\n";
+      p+="【重要ポイント】\n•（3〜5点、各1行）\n\n";
+      p+="【キーワード】\n（用語名のみをカンマ区切りで列挙）\n\n";
+      p+="===文字起こし===\n";
+      return p;
+    }
+  },
+  standard:{
+    label:"標準",
+    maxTokens:8192,
+    prompt:function(hasDoc){
+      var p="以下は授業の文字起こしです。";
+      if(hasDoc)p+="講義資料も添付しています。文字起こしと資料を照らし合わせ、";
+      p+="\n授業内容を【標準形式】で日本語にまとめてください。\n\n";
+      p+="出力ルール：\n";
+      p+="- 音声が短い場合は簡潔に、長い場合はその分だけ詳しく書く\n";
+      p+="- 授業の長さに比例したボリュームで出力すること\n\n";
+      p+="【授業テーマ】\n（一文で）\n\n";
+      p+="【重要ポイント】\n•（箇条書きで5〜10点。長い講義は10点以上でもよい）\n\n";
+      p+="【キーワード・用語】\n（重要な専門用語と簡単な説明）\n\n";
+      p+="【まとめ】\n（3〜5文で全体を総括）\n\n";
+      p+="===文字起こし===\n";
+      return p;
+    }
+  },
+  detailed:{
+    label:"詳細",
+    maxTokens:16384,
+    prompt:function(hasDoc){
+      var p="以下は授業の文字起こしです。";
+      if(hasDoc)p+="講義資料も添付しています。文字起こしと資料を照らし合わせ、";
+      p+="\n授業内容を【詳細形式】で日本語にまとめてください。\n\n";
+      p+="出力ルール：\n";
+      p+="- 各ポイントに2〜3文の説明を加え、具体例・補足も積極的に含める\n";
+      p+="- 授業で言及された数値・固有名詞・事例は省略せず記録する\n";
+      p+="- 音声が長いほど、より多くのポイントと詳細を出力する\n\n";
+      p+="【授業テーマ】\n（一文で）\n\n";
+      p+="【講義の構成・流れ】\n（授業がどのような順序で進んだかを3〜5行で説明）\n\n";
+      p+="【重要ポイント（詳細）】\n•（各ポイントにタイトル＋2〜3文の解説）\n\n";
+      p+="【キーワード・用語解説】\n（用語名：定義や説明を2〜3文で）\n\n";
+      p+="【具体例・事例・数値】\n（授業中に挙げられた例・データを箇条書きで）\n\n";
+      p+="【まとめ・考察】\n（5〜7文で全体を総括し、重要な含意にも触れる）\n\n";
+      p+="===文字起こし===\n";
+      return p;
+    }
+  },
+  full:{
+    label:"完全ノート",
+    maxTokens:32768,
+    prompt:function(hasDoc){
+      var p="以下は授業の文字起こしです。";
+      if(hasDoc)p+="講義資料も添付しています。両方を参照して、";
+      p+="\n授業内容を【完全講義ノート形式】で日本語にまとめてください。\n\n";
+      p+="出力ルール：\n";
+      p+="- 授業で語られた内容を省略なく、網羅的に記録すること\n";
+      p+="- 後から復習だけでこの内容を完全に理解できるレベルで書く\n";
+      p+="- 音声が長いほど出力も長くなって構わない。情報量を優先すること\n";
+      p+="- 授業中の重要な発言・強調・繰り返し・補足も忠実に反映する\n\n";
+      p+="【授業テーマ・目的】\n（テーマと、この授業で何を学ぶかを2〜3文で）\n\n";
+      p+="【前提知識・背景】\n（授業の理解に必要な前提や文脈を説明）\n\n";
+      p+="【講義ノート（本文）】\n（授業の流れに沿って、全内容を章立てして詳述。見出しと本文で構成）\n\n";
+      p+="【キーワード・概念一覧】\n（用語名：定義・説明・関連用語を記載）\n\n";
+      p+="【重要な数値・事例・引用】\n（授業で言及された数値、固有名詞、具体例を全て記録）\n\n";
+      p+="【疑問点・発展的考察】\n（理解を深めるための問いや、授業が示唆する発展的な議論）\n\n";
+      p+="【総まとめ】\n（授業全体の要点を段落形式で総括）\n\n";
+      p+="===文字起こし===\n";
+      return p;
+    }
+  }
+};
+
+var LEVEL_SUBS={
+  compact:"コンパクト — 要点のみ素早くまとめる",
+  standard:"標準 — バランスの取れた要約",
+  detailed:"詳細 — 説明・例も含む詳細版",
+  full:"完全ノート — 講義ノートレベルで網羅"
+};
 
 /* ── IndexedDB ── */
 const DB_NAME="lecture-ai-db",DB_VER=1,STORE="history";
 let db;
 function openDB(){
-  return new Promise((ok,ng)=>{
-    const req=indexedDB.open(DB_NAME,DB_VER);
-    req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains(STORE)){d.createObjectStore(STORE,{keyPath:"id",autoIncrement:true}).createIndex("createdAt","createdAt");}};
-    req.onsuccess=e=>{db=e.target.result;ok(db);};
-    req.onerror=()=>ng(req.error);
+  return new Promise(function(ok,ng){
+    var req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=function(e){var d=e.target.result;if(!d.objectStoreNames.contains(STORE)){d.createObjectStore(STORE,{keyPath:"id",autoIncrement:true}).createIndex("createdAt","createdAt");}};
+    req.onsuccess=function(e){db=e.target.result;ok(db);};
+    req.onerror=function(){ng(req.error);};
   });
 }
-function dbAdd(r){return new Promise((ok,ng)=>{const req=db.transaction(STORE,"readwrite").objectStore(STORE).add(r);req.onsuccess=()=>ok(req.result);req.onerror=()=>ng(req.error);});}
-function dbGetAll(){return new Promise((ok,ng)=>{const req=db.transaction(STORE,"readonly").objectStore(STORE).getAll();req.onsuccess=()=>ok(req.result.reverse());req.onerror=()=>ng(req.error);});}
-function dbDelete(id){return new Promise((ok,ng)=>{const req=db.transaction(STORE,"readwrite").objectStore(STORE).delete(id);req.onsuccess=()=>ok();req.onerror=()=>ng(req.error);});}
+function dbAdd(r){return new Promise(function(ok,ng){var req=db.transaction(STORE,"readwrite").objectStore(STORE).add(r);req.onsuccess=function(){ok(req.result);};req.onerror=function(){ng(req.error);};});}
+function dbGetAll(){return new Promise(function(ok,ng){var req=db.transaction(STORE,"readonly").objectStore(STORE).getAll();req.onsuccess=function(){ok(req.result.reverse());};req.onerror=function(){ng(req.error);};});}
+function dbDelete(id){return new Promise(function(ok,ng){var req=db.transaction(STORE,"readwrite").objectStore(STORE).delete(id);req.onsuccess=function(){ok();};req.onerror=function(){ng(req.error);};});}
 
 /* ── Helpers ── */
-function toast(msg,ms=2800){const el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),ms);}
+function toast(msg,ms){if(!ms)ms=2800;var el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(function(){el.classList.remove("show");},ms);}
 function setProgress(pct,label){$("prog-wrap").style.display="block";$("prog-lbl").style.display="block";if(pct!==null)$("prog-bar").style.width=pct+"%";$("prog-lbl").textContent=label;}
 function clearProgress(){$("prog-wrap").style.display=$("prog-lbl").style.display="none";$("prog-bar").style.width="0%";}
-function fileToB64(f){return new Promise((ok,ng)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=ng;r.readAsDataURL(f);});}
-function guessMime(f){if(f.type)return f.type;const m={mp3:"audio/mpeg",m4a:"audio/mp4",mp4:"audio/mp4",wav:"audio/wav",webm:"audio/webm",ogg:"audio/ogg",aac:"audio/aac"};return m[f.name.split(".").pop().toLowerCase()]||"audio/mpeg";}
-function fmtDate(ts){const d=new Date(ts);return`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;}
+function fileToB64(f){return new Promise(function(ok,ng){var r=new FileReader();r.onload=function(){ok(r.result.split(",")[1]);};r.onerror=ng;r.readAsDataURL(f);});}
+function guessMime(f){if(f.type)return f.type;var m={mp3:"audio/mpeg",m4a:"audio/mp4",mp4:"audio/mp4",wav:"audio/wav",webm:"audio/webm",ogg:"audio/ogg",aac:"audio/aac"};return m[f.name.split(".").pop().toLowerCase()]||"audio/mpeg";}
+function fmtDate(ts){var d=new Date(ts);return d.getFullYear()+"/"+String(d.getMonth()+1).padStart(2,"0")+"/"+String(d.getDate()).padStart(2,"0")+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0");}
 function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
-function copyText(text){navigator.clipboard.writeText(text).then(()=>toast("コピーしました")).catch(()=>{const ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);toast("コピーしました");});}
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function copyText(text){navigator.clipboard.writeText(text).then(function(){toast("コピーしました");}).catch(function(){var ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);toast("コピーしました");});}
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
 
 /* ── Theme ── */
 function applyTheme(){
   document.documentElement.setAttribute("data-theme",dark?"dark":"light");
   $("btn-theme").innerHTML=dark
-    ?`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`
-    :`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+    ?'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+    :'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
 }
-$("btn-theme").addEventListener("click",()=>{dark=!dark;applyTheme();});
+$("btn-theme").addEventListener("click",function(){dark=!dark;applyTheme();});
 applyTheme();
 
 /* ── Setup ── */
 $("btn-start").addEventListener("click",startApp);
-$("inp-key").addEventListener("keydown",e=>{if(e.key==="Enter")startApp();});
+$("inp-key").addEventListener("keydown",function(e){if(e.key==="Enter")startApp();});
 function startApp(){
-  const key=$("inp-key").value.trim(),err=$("setup-err");
+  var key=$("inp-key").value.trim(),err=$("setup-err");
   if(!key.startsWith("AIza")){err.textContent="APIキーが正しくありません（AIzaから始まります）";err.style.display="block";$("inp-key").focus();return;}
   API_KEY=key;$("setup").classList.add("hidden");$("app").classList.remove("hidden");renderHistory();
 }
-$("btn-logout").addEventListener("click",()=>{
+$("btn-logout").addEventListener("click",function(){
   API_KEY="";audioFile=docFile=null;$("inp-key").value="";$("setup-err").style.display="none";
   $("app").classList.add("hidden");$("setup").classList.remove("hidden");resetUI();showPage("home");
 });
 
 /* ── Pages ── */
-function showPage(name){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));$("page-"+name).classList.add("active");}
-$("btn-hist").addEventListener("click",()=>{
+function showPage(name){document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");});$("page-"+name).classList.add("active");}
+$("btn-hist").addEventListener("click",function(){
   if($("page-hist").classList.contains("active")){showPage("home");}
   else{renderHistory();showPage("hist");}
 });
 
+/* ── 要約レベル選択 ── */
+document.querySelectorAll(".level-btn").forEach(function(btn){
+  btn.addEventListener("click",function(){
+    document.querySelectorAll(".level-btn").forEach(function(b){b.classList.remove("active");b.setAttribute("aria-pressed","false");});
+    btn.classList.add("active");
+    btn.setAttribute("aria-pressed","true");
+    summaryLevel=btn.dataset.level;
+    $("level-sub").textContent=LEVEL_SUBS[summaryLevel];
+  });
+});
+
 /* ── File upload ── */
 function bindUpload(dzId,fiId,pillId,pnId,rmId,setter){
-  const dz=$(dzId),fi=$(fiId),pill=$(pillId),pn=$(pnId),rm=$(rmId);
-  dz.addEventListener("click",()=>fi.click());
-  dz.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" ")fi.click();});
-  dz.addEventListener("dragover",e=>{e.preventDefault();dz.classList.add("over");});
-  dz.addEventListener("dragleave",()=>dz.classList.remove("over"));
-  dz.addEventListener("drop",e=>{e.preventDefault();dz.classList.remove("over");if(e.dataTransfer.files[0])pick(e.dataTransfer.files[0]);});
-  fi.addEventListener("change",()=>{if(fi.files[0])pick(fi.files[0]);});
-  rm.addEventListener("click",e=>{e.stopPropagation();clear();});
+  var dz=$(dzId),fi=$(fiId),pill=$(pillId),pn=$(pnId),rm=$(rmId);
+  dz.addEventListener("click",function(){fi.click();});
+  dz.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" ")fi.click();});
+  dz.addEventListener("dragover",function(e){e.preventDefault();dz.classList.add("over");});
+  dz.addEventListener("dragleave",function(){dz.classList.remove("over");});
+  dz.addEventListener("drop",function(e){e.preventDefault();dz.classList.remove("over");if(e.dataTransfer.files[0])pick(e.dataTransfer.files[0]);});
+  fi.addEventListener("change",function(){if(fi.files[0])pick(fi.files[0]);});
+  rm.addEventListener("click",function(e){e.stopPropagation();clear();});
   function pick(f){
-    const mb=(f.size/1024/1024).toFixed(1);
+    var mb=(f.size/1024/1024).toFixed(1);
     pn.textContent=f.name+"  ("+mb+" MB)";
     pill.classList.remove("hidden");dz.style.display="none";setter(f);refreshRunBtn();
   }
   function clear(){pill.classList.add("hidden");dz.style.display="";fi.value="";setter(null);refreshRunBtn();}
 }
-bindUpload("dz-audio","fi-audio","pill-audio","pn-audio","rm-audio",f=>{audioFile=f;});
-bindUpload("dz-doc","fi-doc","pill-doc","pn-doc","rm-doc",f=>{docFile=f;});
+bindUpload("dz-audio","fi-audio","pill-audio","pn-audio","rm-audio",function(f){audioFile=f;});
+bindUpload("dz-doc","fi-doc","pill-doc","pn-doc","rm-doc",function(f){docFile=f;});
 function refreshRunBtn(){$("run-btn").disabled=!audioFile;$("run-lbl").textContent=audioFile?"文字起こし＋要約を実行":"音声ファイルを選択してください";}
 
 /* ── Result tabs ── */
@@ -413,13 +566,14 @@ document.querySelectorAll(".tab").forEach(function(tab){
 });
 
 /* ── Gemini API call ── */
-async function geminiCall(parts){
-  const url="https://generativelanguage.googleapis.com/v1beta/models/"+GEMINI_MODEL+":generateContent?key="+API_KEY;
+async function geminiCall(parts,maxTokens){
+  if(!maxTokens)maxTokens=8192;
+  var url="https://generativelanguage.googleapis.com/v1beta/models/"+GEMINI_MODEL+":generateContent?key="+API_KEY;
   for(var attempt=0;attempt<4;attempt++){
     var res=await fetch(url,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({contents:[{parts:parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})
+      body:JSON.stringify({contents:[{parts:parts}],generationConfig:{temperature:0.2,maxOutputTokens:maxTokens}})
     });
     if(res.status===429){
       var wait=60*(attempt+1);
@@ -494,6 +648,7 @@ $("run-btn").addEventListener("click",run);
 async function run(){
   if(!audioFile||!API_KEY)return;
   var btn=$("run-btn"),lbl=$("run-lbl");
+  var cfg=LEVEL_CONFIG[summaryLevel];
   btn.disabled=true;lbl.innerHTML='<span class="spin"></span> 処理中...';
   $("result-card").style.display="none";clearProgress();
   var uploadedFileName=null;
@@ -506,31 +661,29 @@ async function run(){
     var transcript=await geminiCall([
       {file_data:{mime_type:active.mimeType||guessMime(audioFile),file_uri:active.uri}},
       {text:"以下の音声を日本語で正確に文字起こししてください。話者が複数いる場合は「話者A:」のように区別してください。句読点・改行を適切に付けてください。文字起こしのテキストのみ出力してください。"}
-    ]);
+    ],16384);
 
-    setProgress(78,"要約中...");
+    setProgress(78,"要約中（"+cfg.label+"モード）...");
     var parts=[];
     if(docFile){
       var docB64=await fileToB64(docFile);
       var docMime=docFile.type||(docFile.name.endsWith(".pdf")?"application/pdf":"text/plain");
       parts.push({inline_data:{mime_type:docMime,data:docB64}});
     }
-    var prompt="以下は授業の文字起こしです。";
-    if(docFile)prompt+="また、講義資料も添付しています。文字起こしと資料を照らし合わせ、";
-    prompt+="\n授業内容を以下の形式で日本語でまとめてください：\n\n【授業テーマ】\n（一文で）\n\n【重要ポイント】\n•（箇条書きで5〜8点）\n\n【キーワード・用語】\n（重要な専門用語と簡単な説明）\n\n【まとめ】\n（3〜4文で全体を総括）\n\n===文字起こし===\n"+transcript;
+    var prompt=cfg.prompt(!!docFile)+transcript;
     parts.push({text:prompt});
-    var summary=await geminiCall(parts);
+    var summary=await geminiCall(parts,cfg.maxTokens);
 
     setProgress(93,"履歴に保存中...");
-    var titleMatch=summary.match(/【授業テーマ】\s*\n([^\n]+)/);
+    var titleMatch=summary.match(/【授業テーマ[^】]*】\s*\n([^\n]+)/);
     var title=titleMatch?titleMatch[1].trim():audioFile.name.replace(/\.[^.]+$/,"");
-    await dbAdd({title:title,summary:summary,transcript:transcript,fileName:audioFile.name,docName:docFile?docFile.name:null,createdAt:Date.now()});
+    await dbAdd({title:title,summary:summary,transcript:transcript,fileName:audioFile.name,docName:docFile?docFile.name:null,summaryLevel:summaryLevel,createdAt:Date.now()});
     updateHistBadge();
     setProgress(100,"完了！");setTimeout(clearProgress,900);
 
     $("box-transcript").textContent=transcript;
     $("box-summary").textContent=summary;
-    $("result-sub").textContent=audioFile.name+(docFile?" + "+docFile.name:"");
+    $("result-sub").textContent=audioFile.name+(docFile?" + "+docFile.name:"")+" ／ "+cfg.label;
     $("result-card").style.display="flex";
     $("result-card").scrollIntoView({behavior:"smooth",block:"start"});
     toast("履歴に保存しました");
@@ -553,8 +706,11 @@ async function renderHistory(){
     list.innerHTML='<div class="hist-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg><h3>履歴はまだありません</h3><p>授業を要約すると、ここに自動で保存されます</p></div>';
     return;
   }
+  var lvIcons={compact:"⚡",standard:"📋",detailed:"📚",full:"🎓"};
   list.innerHTML=items.map(function(item){
-    return '<div class="hist-item" data-id="'+item.id+'"><div class="hist-item-top"><p class="hist-item-title">'+escHtml(item.title)+'</p><button class="hist-item-del" data-del="'+item.id+'" aria-label="削除"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4h4v2"/></svg></button></div><div class="hist-item-meta"><span class="meta-chip">'+fmtDate(item.createdAt)+'</span><span class="meta-chip">'+escHtml(item.fileName)+'</span></div><p class="hist-item-preview">'+escHtml(item.summary.slice(0,120))+'...</p></div>';
+    var lv=item.summaryLevel||"standard";
+    var lvLabel=(lvIcons[lv]||"📋")+" "+(LEVEL_CONFIG[lv]?LEVEL_CONFIG[lv].label:lv);
+    return '<div class="hist-item" data-id="'+item.id+'"><div class="hist-item-top"><p class="hist-item-title">'+escHtml(item.title)+'</p><button class="hist-item-del" data-del="'+item.id+'" aria-label="削除"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4h4v2"/></svg></button></div><div class="hist-item-meta"><span class="meta-chip">'+fmtDate(item.createdAt)+'</span><span class="meta-chip lv">'+escHtml(lvLabel)+'</span><span class="meta-chip">'+escHtml(item.fileName)+'</span></div><p class="hist-item-preview">'+escHtml(item.summary.slice(0,120))+'...</p></div>';
   }).join("");
   list.querySelectorAll(".hist-item").forEach(function(el){
     el.addEventListener("click",function(e){
@@ -604,7 +760,9 @@ $("modal-copy").addEventListener("click",function(){
 });
 $("modal-export").addEventListener("click",function(){
   if(!currentModal)return;
-  var text="【"+currentModal.title+"】\n保存日時: "+fmtDate(currentModal.createdAt)+"\nファイル: "+currentModal.fileName+"\n\n"+"=".repeat(40)+"\n要約\n"+"=".repeat(40)+"\n"+currentModal.summary+"\n\n"+"=".repeat(40)+"\n文字起こし\n"+"=".repeat(40)+"\n"+currentModal.transcript;
+  var lv=currentModal.summaryLevel||"standard";
+  var lvLabel=LEVEL_CONFIG[lv]?LEVEL_CONFIG[lv].label:lv;
+  var text="【"+currentModal.title+"】\n保存日時: "+fmtDate(currentModal.createdAt)+"\nファイル: "+currentModal.fileName+"\n要約レベル: "+lvLabel+"\n\n"+"=".repeat(40)+"\n要約\n"+"=".repeat(40)+"\n"+currentModal.summary+"\n\n"+"=".repeat(40)+"\n文字起こし\n"+"=".repeat(40)+"\n"+currentModal.transcript;
   var blob=new Blob([text],{type:"text/plain;charset=utf-8"});
   var a=document.createElement("a");
   a.href=URL.createObjectURL(blob);
