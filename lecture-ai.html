@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="講義まとめAI">
+<title>講義まとめAI</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme=light]{
+  --bg:#f7f6f2;--surface:#f9f8f5;--surface2:#fbfbf9;--surface-off:#f3f0ec;
+  --border:#d4d1ca;--divider:#dcd9d5;
+  --text:#28251d;--muted:#7a7974;--faint:#bab9b4;
+  --primary:#01696f;--primary-h:#0c4e54;--primary-hl:#cedcd8;
+  --ok:#437a22;--ok-hl:#d4dfcc;
+  --err:#a12c7b;--err-hl:#e0ced7;
+  --sh-sm:0 1px 2px oklch(0.2 0.01 80/.06);
+  --sh-md:0 4px 12px oklch(0.2 0.01 80/.08);
+  --sh-lg:0 12px 32px oklch(0.2 0.01 80/.12);
+  --r-sm:.375rem;--r-md:.5rem;--r-lg:.75rem;--r-xl:1rem;--r-full:9999px;
+  --font:'Satoshi','Helvetica Neue',sans-serif;
+  --xs:clamp(.75rem,.7rem + .25vw,.875rem);--sm:clamp(.875rem,.8rem + .35vw,1rem);
+  --base:clamp(1rem,.95rem + .25vw,1.125rem);--lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+  --s1:.25rem;--s2:.5rem;--s3:.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;
+  --ease:180ms cubic-bezier(.16,1,.3,1);
+}
+[data-theme=dark]{
+  --bg:#171614;--surface:#1c1b19;--surface2:#201f1d;--surface-off:#1d1c1a;
+  --border:#393836;--divider:#262523;
+  --text:#cdccca;--muted:#797876;--faint:#5a5957;
+  --primary:#4f98a3;--primary-h:#227f8b;--primary-hl:#313b3b;
+  --ok:#6daa45;--ok-hl:#3a4435;--err:#d163a7;--err-hl:#4c3d46;
+  --sh-sm:0 1px 2px oklch(0 0 0/.2);--sh-md:0 4px 12px oklch(0 0 0/.3);--sh-lg:0 12px 32px oklch(0 0 0/.4);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:none;text-size-adjust:none;-webkit-font-smoothing:antialiased}
+body{min-height:100dvh;font-family:var(--font);font-size:var(--base);color:var(--text);background:var(--bg);line-height:1.6}
+svg,img{display:block;max-width:100%}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+input{font:inherit;color:inherit}
+button,input{transition:color var(--ease),background var(--ease),border-color var(--ease),box-shadow var(--ease)}
+:focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:var(--r-sm)}
+.hidden{display:none!important}
+
+/* Auth */
+#auth{display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:var(--s6)}
+.auth-card{width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s8);box-shadow:var(--sh-lg);display:flex;flex-direction:column;gap:var(--s5)}
+.auth-logo{display:flex;align-items:center;justify-content:center;gap:var(--s3)}
+.auth-logo svg{color:var(--primary)}
+.auth-logo span{font-size:var(--lg);font-weight:700}
+.auth-desc{text-align:center;font-size:var(--sm);color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:var(--s2)}
+.field label{font-size:var(--sm);font-weight:500}
+.field input{width:100%;padding:var(--s3) var(--s4);border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface2);font-size:var(--base)}
+.field input:focus{outline:2px solid var(--primary);outline-offset:0;border-color:transparent}
+.err-msg{font-size:var(--sm);color:var(--err);background:var(--err-hl);padding:var(--s3);border-radius:var(--r-md);text-align:center;display:none}
+.btn-login{width:100%;padding:var(--s3) var(--s4);background:var(--primary);color:#fff;font-size:var(--base);font-weight:700;border:none;border-radius:var(--r-md);cursor:pointer}
+.btn-login:hover{background:var(--primary-h)}
+.privacy-note{font-size:var(--xs);color:var(--faint);text-align:center;line-height:1.6}
+
+/* App */
+#app{display:flex;flex-direction:column;min-height:100dvh}
+.hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);padding:var(--s4) var(--s5);display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh-sm)}
+.hdr-logo{display:flex;align-items:center;gap:var(--s3)}
+.hdr-logo svg{color:var(--primary)}
+.hdr-logo span{font-size:var(--base);font-weight:700}
+.hdr-btns{display:flex;gap:var(--s2)}
+.ico-btn{width:40px;height:40px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.ico-btn:hover{background:var(--surface-off);color:var(--text)}
+main{padding:var(--s5);max-width:600px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:var(--s5)}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh-sm)}
+.card-hdr{padding:var(--s4) var(--s5);border-bottom:1px solid var(--divider);display:flex;align-items:center;gap:var(--s3)}
+.card-icon{width:36px;height:36px;flex-shrink:0;background:var(--primary-hl);color:var(--primary);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center}
+.card-title{font-size:var(--sm);font-weight:700}
+.card-sub{font-size:var(--xs);color:var(--muted);margin-top:2px}
+.card-body{padding:var(--s5)}
+
+/* Upload */
+.drop-zone{border:2px dashed var(--border);border-radius:var(--r-lg);padding:var(--s8) var(--s5);background:var(--surface2);display:flex;flex-direction:column;align-items:center;gap:var(--s3);cursor:pointer;text-align:center;transition:border-color var(--ease),background var(--ease)}
+.drop-zone:hover,.drop-zone.over{border-color:var(--primary);background:var(--primary-hl)}
+.drop-zone svg{color:var(--faint);transition:color var(--ease)}
+.drop-zone:hover svg,.drop-zone.over svg{color:var(--primary)}
+.dz-label{font-size:var(--sm);font-weight:500;color:var(--muted)}
+.dz-hint{font-size:var(--xs);color:var(--faint)}
+input[type=file]{display:none}
+.pill{display:flex;align-items:center;gap:var(--s3);background:var(--surface-off);border:1px solid var(--border);border-radius:var(--r-full);padding:var(--s2) var(--s4);margin-top:var(--s3)}
+.pill svg{color:var(--primary);flex-shrink:0}
+.pill-name{font-size:var(--sm);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill-rm{color:var(--faint);padding:var(--s1);border-radius:var(--r-full);flex-shrink:0}
+.pill-rm:hover{color:var(--err);background:var(--err-hl)}
+
+/* Divider */
+.opt-div{display:flex;align-items:center;justify-content:center;gap:var(--s2);color:var(--faint);font-size:var(--xs)}
+.opt-div::before,.opt-div::after{content:'';flex:1;height:1px;background:var(--divider)}
+
+/* Run */
+.run-btn{width:100%;padding:var(--s4);background:var(--primary);color:#fff;font-size:var(--base);font-weight:700;border:none;border-radius:var(--r-lg);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:var(--s3)}
+.run-btn:hover:not(:disabled){background:var(--primary-h)}
+.run-btn:disabled{opacity:.45;cursor:not-allowed}
+.spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.prog-wrap{background:var(--surface-off);border-radius:var(--r-full);height:6px;overflow:hidden;margin-top:var(--s4);display:none}
+.prog-bar{height:100%;background:var(--primary);width:0%;transition:width .4s ease}
+.prog-lbl{font-size:var(--xs);color:var(--muted);text-align:center;margin-top:var(--s2);display:none}
+
+/* Results */
+.result-card{display:none;flex-direction:column;gap:var(--s4)}
+.tabs{display:flex;gap:var(--s1);background:var(--surface-off);border-radius:var(--r-lg);padding:var(--s1)}
+.tab{flex:1;padding:var(--s2) var(--s3);border-radius:var(--r-md);font-size:var(--sm);font-weight:500;color:var(--muted);text-align:center;cursor:pointer}
+.tab.active{background:var(--surface);color:var(--text);box-shadow:var(--sh-sm);font-weight:700}
+.panel{display:none}
+.panel.active{display:block}
+.result-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:var(--s5);font-size:var(--sm);line-height:1.8;max-height:55vh;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+.result-actions{display:flex;gap:var(--s3)}
+.btn-sec{flex:1;padding:var(--s3);border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface);font-size:var(--sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--s2)}
+.btn-sec:hover{background:var(--surface-off)}
+
+/* Toast */
+.toast{position:fixed;bottom:calc(var(--s6) + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:var(--bg);padding:var(--s3) var(--s5);border-radius:var(--r-full);font-size:var(--sm);font-weight:500;white-space:nowrap;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:390px){main,.card-body{padding:var(--s4)}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ AUTH ═══════════ -->
+<div id="auth">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
+        <rect width="34" height="34" rx="9" fill="currentColor" opacity=".12"/>
+        <path d="M8 10h12M8 15.5h9M8 21h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="25" cy="14" r="5.5" stroke="currentColor" stroke-width="2"/>
+        <path d="M25 11.5v5M22.5 14h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>講義まとめAI</span>
+    </div>
+    <p class="auth-desc">プライベート利用専用アプリ</p>
+    <div class="field">
+      <label for="inp-pw">パスワード</label>
+      <input type="password" id="inp-pw" placeholder="パスワードを入力" autocomplete="current-password">
+    </div>
+    <div class="field">
+      <label for="inp-key">Gemini APIキー</label>
+      <input type="password" id="inp-key" placeholder="AIza..." autocomplete="off">
+    </div>
+    <p class="err-msg" id="auth-err"></p>
+    <button class="btn-login" id="btn-login">ログイン</button>
+    <p class="privacy-note">パスワードとAPIキーはこのデバイスのメモリにのみ保持されます。外部には一切送信されません。</p>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div id="app" class="hidden">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <svg width="28" height="28" viewBox="0 0 34 34" fill="none">
+        <rect width="34" height="34" rx="9" fill="var(--primary)" opacity=".15"/>
+        <path d="M8 10h12M8 15.5h9M8 21h11" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="25" cy="14" r="5.5" stroke="var(--primary)" stroke-width="2"/>
+        <path d="M25 11.5v5M22.5 14h5" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>講義まとめAI</span>
+    </div>
+    <div class="hdr-btns">
+      <button class="ico-btn" id="btn-theme" aria-label="テーマ切替">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="ico-btn" id="btn-logout" aria-label="ログアウト">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ① Audio -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">① 音声ファイル</p>
+          <p class="card-sub">授業の録音をアップロード（必須）</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="drop-zone" id="dz-audio" role="button" tabindex="0">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          <p class="dz-label">タップして音声ファイルを選択</p>
+          <p class="dz-hint">MP3 / M4A / WAV / MP4 / WebM（最大20MB）</p>
+        </div>
+        <input type="file" id="fi-audio" accept="audio/*,video/mp4,video/webm">
+        <div class="pill hidden" id="pill-audio">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/></svg>
+          <span class="pill-name" id="pn-audio"></span>
+          <button class="pill-rm" id="rm-audio" aria-label="削除"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="opt-div">＋ 講義資料を追加（任意）</div>
+
+    <!-- ② Document -->
+    <div class="card">
+      <div class="card-hdr">
+        <div class="card-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+          </svg>
+        </div>
+        <div>
+          <p class="card-title">② 講義資料 <span style="font-weight:400;color:var(--muted)">（任意）</span></p>
+          <p class="card-sub">添付すると要約精度がさらに上がります</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="drop-zone" id="dz-doc" role="button" tabindex="0">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          <p class="dz-label">タップして資料ファイルを選択</p>
+          <p class="dz-hint">PDF / TXT / Markdown</p>
+        </div>
+        <input type="file" id="fi-doc" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown">
+        <div class="pill hidden" id="pill-doc">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="pill-name" id="pn-doc"></span>
+          <button class="pill-rm" id="rm-doc" aria-label="削除"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Run -->
+    <button class="run-btn" id="run-btn" disabled>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span id="run-lbl">音声ファイルを選択してください</span>
+    </button>
+    <div class="prog-wrap" id="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+    <p class="prog-lbl" id="prog-lbl"></p>
+
+    <!-- Results -->
+    <div class="card result-card" id="result-card">
+      <div class="card-hdr">
+        <div class="card-icon" style="background:var(--ok-hl);color:var(--ok)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div>
+          <p class="card-title">結果</p>
+          <p class="card-sub" id="result-sub"></p>
+        </div>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:var(--s4)">
+        <div class="tabs">
+          <button class="tab active" data-tab="summary">📝 要約</button>
+          <button class="tab" data-tab="transcript">🗒️ 文字起こし</button>
+        </div>
+        <div class="panel active" id="panel-summary"><div class="result-box" id="box-summary"></div></div>
+        <div class="panel" id="panel-transcript"><div class="result-box" id="box-transcript"></div></div>
+        <div class="result-actions">
+          <button class="btn-sec" id="btn-copy">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            コピー
+          </button>
+          <button class="btn-sec" id="btn-reset">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            リセット
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+<script>
+// =============================================
+// ▼ ここを自分のパスワードに変更してください ▼
+const APP_PW = "smm1529";
+// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+// =============================================
+
+let API_KEY = "", audioFile = null, docFile = null;
+let dark = window.matchMedia("(prefers-color-scheme:dark)").matches;
+const $ = id => document.getElementById(id);
+
+/* Helpers */
+function toast(msg, ms=2800) {
+  const el=$("toast"); el.textContent=msg; el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"), ms);
+}
+function setProgress(pct, label) {
+  $("prog-wrap").style.display="block"; $("prog-lbl").style.display="block";
+  $("prog-bar").style.width=pct+"%"; $("prog-lbl").textContent=label;
+}
+function clearProgress() {
+  $("prog-wrap").style.display=$("prog-lbl").style.display="none";
+  $("prog-bar").style.width="0%";
+}
+function fileToB64(f) {
+  return new Promise((ok,ng)=>{ const r=new FileReader(); r.onload=()=>ok(r.result.split(",")[1]); r.onerror=ng; r.readAsDataURL(f); });
+}
+function guessMime(f) {
+  if(f.type) return f.type;
+  const m={mp3:"audio/mpeg",m4a:"audio/mp4",mp4:"audio/mp4",wav:"audio/wav",webm:"audio/webm",ogg:"audio/ogg",aac:"audio/aac"};
+  return m[f.name.split(".").pop().toLowerCase()]||"audio/mpeg";
+}
+
+/* Theme */
+function applyTheme() {
+  document.documentElement.setAttribute("data-theme", dark?"dark":"light");
+  $("btn-theme").innerHTML = dark
+    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`
+    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+}
+$("btn-theme").addEventListener("click", ()=>{ dark=!dark; applyTheme(); });
+applyTheme();
+
+/* Auth */
+$("btn-login").addEventListener("click", login);
+$("inp-pw").addEventListener("keydown",  e=>{ if(e.key==="Enter") $("inp-key").focus(); });
+$("inp-key").addEventListener("keydown", e=>{ if(e.key==="Enter") login(); });
+function login() {
+  const pw=$("inp-pw").value.trim(), key=$("inp-key").value.trim(), err=$("auth-err");
+  if(pw!==APP_PW){ err.textContent="パスワードが正しくありません"; err.style.display="block"; $("inp-pw").focus(); return; }
+  if(!key.startsWith("AIza")){ err.textContent="APIキーが正しくありません（AIzaから始まります）"; err.style.display="block"; $("inp-key").focus(); return; }
+  API_KEY=key; $("auth").classList.add("hidden"); $("app").classList.remove("hidden");
+}
+$("btn-logout").addEventListener("click", ()=>{
+  API_KEY=""; audioFile=docFile=null;
+  $("inp-pw").value=$("inp-key").value=""; $("auth-err").style.display="none";
+  $("app").classList.add("hidden"); $("auth").classList.remove("hidden");
+  resetUI();
+});
+
+/* File upload */
+function bindUpload(dzId, fiId, pillId, pnId, rmId, setter) {
+  const dz=$(dzId), fi=$(fiId), pill=$(pillId), pn=$(pnId), rm=$(rmId);
+  dz.addEventListener("click",   ()=>fi.click());
+  dz.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" ") fi.click(); });
+  dz.addEventListener("dragover",  e=>{ e.preventDefault(); dz.classList.add("over"); });
+  dz.addEventListener("dragleave", ()=>dz.classList.remove("over"));
+  dz.addEventListener("drop", e=>{ e.preventDefault(); dz.classList.remove("over"); if(e.dataTransfer.files[0]) pick(e.dataTransfer.files[0]); });
+  fi.addEventListener("change", ()=>{ if(fi.files[0]) pick(fi.files[0]); });
+  rm.addEventListener("click",  e=>{ e.stopPropagation(); clear(); });
+  function pick(f){ pn.textContent=f.name; pill.classList.remove("hidden"); dz.style.display="none"; setter(f); refreshRunBtn(); }
+  function clear(){ pill.classList.add("hidden"); dz.style.display=""; fi.value=""; setter(null); refreshRunBtn(); }
+}
+bindUpload("dz-audio","fi-audio","pill-audio","pn-audio","rm-audio", f=>audioFile=f);
+bindUpload("dz-doc",  "fi-doc",  "pill-doc",  "pn-doc",  "rm-doc",  f=>docFile=f);
+
+function refreshRunBtn() {
+  const btn=$("run-btn"), lbl=$("run-lbl");
+  btn.disabled=!audioFile;
+  lbl.textContent=audioFile?"文字起こし＋要約を実行":"音声ファイルを選択してください";
+}
+
+/* Tabs */
+document.querySelectorAll(".tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+    tab.classList.add("active"); $("panel-"+tab.dataset.tab).classList.add("active");
+  });
+});
+
+/* Pipeline */
+$("run-btn").addEventListener("click", run);
+async function run() {
+  if(!audioFile||!API_KEY) return;
+  const btn=$("run-btn"), lbl=$("run-lbl");
+  btn.disabled=true; lbl.innerHTML='<span class="spin"></span> 処理中...';
+  $("result-card").style.display="none"; clearProgress();
+  try {
+    setProgress(10, "音声ファイルを読み込み中...");
+    const audioB64=await fileToB64(audioFile);
+
+    setProgress(35, "Geminiで文字起こし中...");
+    const transcript = await geminiCall([
+      { inline_data: { mime_type: guessMime(audioFile), data: audioB64 } },
+      { text: "以下の音声を日本語で正確に文字起こししてください。話者が複数いる場合は「話者A:」のように区別してください。句読点・改行を適切に付けてください。文字起こしのテキストのみ出力してください。" }
+    ]);
+
+    setProgress(68, "Geminiで要約中...");
+    const parts = [];
+    if(docFile) {
+      const docB64=await fileToB64(docFile);
+      const docMime=docFile.type||(docFile.name.endsWith(".pdf")?"application/pdf":"text/plain");
+      parts.push({ inline_data: { mime_type: docMime, data: docB64 } });
+    }
+    let prompt = "以下は授業の文字起こしです。";
+    if(docFile) prompt += "また、講義資料も添付しています。文字起こしと資料を照らし合わせ、";
+    prompt += `\n授業内容を以下の形式で日本語でまとめてください：\n\n【授業テーマ】\n（一文で）\n\n【重要ポイント】\n•（箇条書きで5〜8点）\n\n【キーワード・用語】\n（重要な専門用語と簡単な説明）\n\n【まとめ】\n（3〜4文で全体を総括）\n\n===文字起こし===\n${transcript}`;
+    parts.push({ text: prompt });
+    const summary = await geminiCall(parts);
+
+    setProgress(100, "完了！"); setTimeout(clearProgress, 900);
+    $("box-transcript").textContent = transcript;
+    $("box-summary").textContent    = summary;
+    $("result-sub").textContent     = audioFile.name + (docFile?" ＋ "+docFile.name:"");
+    $("result-card").style.display  = "flex";
+    $("result-card").scrollIntoView({ behavior:"smooth", block:"start" });
+  } catch(e) {
+    clearProgress(); toast("エラー: "+(e.message||"不明なエラー"), 5000); console.error(e);
+  } finally {
+    btn.disabled=false; lbl.textContent="文字起こし＋要約を実行"; refreshRunBtn();
+  }
+}
+
+async function geminiCall(parts) {
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+  const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})});
+  if(!res.ok){
+    const b=await res.json().catch(()=>({}));
+    const m=b?.error?.message||res.statusText;
+    if(res.status===403) throw new Error("APIキーが無効です。Google AI StudioでAPIキーを確認してください。");
+    if(res.status===429) throw new Error("APIレート制限に達しました。しばらく待ってから再試行してください。");
+    throw new Error("Gemini APIエラー ("+res.status+"): "+m);
+  }
+  const data=await res.json();
+  const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if(!text) throw new Error("Geminiから空の返答が返されました。");
+  return text;
+}
+
+/* Copy & Reset */
+$("btn-copy").addEventListener("click", ()=>{
+  const tab=document.querySelector(".tab.active").dataset.tab;
+  const text=tab==="summary"?$("box-summary").textContent:$("box-transcript").textContent;
+  navigator.clipboard.writeText(text).then(()=>toast("コピーしました ✓")).catch(()=>{
+    const ta=document.createElement("textarea"); ta.value=text;
+    ta.style.cssText="position:fixed;opacity:0"; document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+    toast("コピーしました ✓");
+  });
+});
+$("btn-reset").addEventListener("click", resetUI);
+function resetUI() {
+  audioFile=docFile=null;
+  ["pill-audio","pill-doc"].forEach(id=>$(id).classList.add("hidden"));
+  $("dz-audio").style.display=$("dz-doc").style.display="";
+  $("fi-audio").value=$("fi-doc").value="";
+  $("result-card").style.display="none";
+  $("box-summary").textContent=$("box-transcript").textContent="";
+  clearProgress(); refreshRunBtn();
+}
+</script>
+</body>
+</html>
