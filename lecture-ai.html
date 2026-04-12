@@ -14,8 +14,7 @@
   --border:#d4d1ca;--divider:#dcd9d5;
   --text:#28251d;--muted:#7a7974;--faint:#bab9b4;
   --primary:#01696f;--primary-h:#0c4e54;--primary-hl:#cedcd8;
-  --ok:#437a22;--ok-hl:#d4dfcc;
-  --err:#a12c7b;--err-hl:#e0ced7;
+  --ok:#437a22;--ok-hl:#d4dfcc;--err:#a12c7b;--err-hl:#e0ced7;
   --sh-sm:0 1px 2px oklch(0.2 0.01 80/.06);
   --sh-md:0 4px 12px oklch(0.2 0.01 80/.08);
   --sh-lg:0 12px 32px oklch(0.2 0.01 80/.12);
@@ -23,7 +22,7 @@
   --font:'Satoshi','Helvetica Neue',sans-serif;
   --xs:clamp(.75rem,.7rem + .25vw,.875rem);--sm:clamp(.875rem,.8rem + .35vw,1rem);
   --base:clamp(1rem,.95rem + .25vw,1.125rem);--lg:clamp(1.125rem,1rem + .75vw,1.5rem);
-  --s1:.25rem;--s2:.5rem;--s3:.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;
+  --s1:.25rem;--s2:.5rem;--s3:.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;--s10:2.5rem;
   --ease:180ms cubic-bezier(.16,1,.3,1);
 }
 [data-theme=dark]{
@@ -39,47 +38,45 @@ html{-webkit-text-size-adjust:none;text-size-adjust:none;-webkit-font-smoothing:
 body{min-height:100dvh;font-family:var(--font);font-size:var(--base);color:var(--text);background:var(--bg);line-height:1.6}
 svg,img{display:block;max-width:100%}
 button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
-input{font:inherit;color:inherit}
+input,textarea{font:inherit;color:inherit}
 button,input{transition:color var(--ease),background var(--ease),border-color var(--ease),box-shadow var(--ease)}
 :focus-visible{outline:2px solid var(--primary);outline-offset:3px;border-radius:var(--r-sm)}
 .hidden{display:none!important}
-
-/* Auth */
-#auth{display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:var(--s6)}
-.auth-card{width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s8);box-shadow:var(--sh-lg);display:flex;flex-direction:column;gap:var(--s5)}
-.auth-logo{display:flex;align-items:center;justify-content:center;gap:var(--s3)}
-.auth-logo svg{color:var(--primary)}
-.auth-logo span{font-size:var(--lg);font-weight:700}
-.auth-desc{text-align:center;font-size:var(--sm);color:var(--muted)}
+#setup{display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:var(--s6)}
+.setup-card{width:100%;max-width:340px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s8);box-shadow:var(--sh-lg);display:flex;flex-direction:column;gap:var(--s5)}
+.setup-logo{display:flex;align-items:center;justify-content:center;gap:var(--s3)}
+.setup-logo svg{color:var(--primary)}
+.setup-logo span{font-size:var(--lg);font-weight:700}
+.setup-desc{font-size:var(--sm);color:var(--muted);text-align:center;line-height:1.7}
 .field{display:flex;flex-direction:column;gap:var(--s2)}
 .field label{font-size:var(--sm);font-weight:500}
 .field input{width:100%;padding:var(--s3) var(--s4);border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface2);font-size:var(--base)}
 .field input:focus{outline:2px solid var(--primary);outline-offset:0;border-color:transparent}
 .err-msg{font-size:var(--sm);color:var(--err);background:var(--err-hl);padding:var(--s3);border-radius:var(--r-md);text-align:center;display:none}
-.btn-login{width:100%;padding:var(--s3) var(--s4);background:var(--primary);color:#fff;font-size:var(--base);font-weight:700;border:none;border-radius:var(--r-md);cursor:pointer}
-.btn-login:hover{background:var(--primary-h)}
-.privacy-note{font-size:var(--xs);color:var(--faint);text-align:center;line-height:1.6}
-
-/* App */
+.btn-start{width:100%;padding:var(--s3) var(--s4);background:var(--primary);color:#fff;font-size:var(--base);font-weight:700;border-radius:var(--r-md)}
+.btn-start:hover{background:var(--primary-h)}
+.key-hint{font-size:var(--xs);color:var(--faint);text-align:center;line-height:1.6}
+.key-hint a{color:var(--primary);text-decoration:none}
 #app{display:flex;flex-direction:column;min-height:100dvh}
 .hdr{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);padding:var(--s4) var(--s5);display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh-sm)}
 .hdr-logo{display:flex;align-items:center;gap:var(--s3)}
 .hdr-logo svg{color:var(--primary)}
 .hdr-logo span{font-size:var(--base);font-weight:700}
-.hdr-btns{display:flex;gap:var(--s2)}
-.ico-btn{width:40px;height:40px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.hdr-btns{display:flex;align-items:center;gap:var(--s2)}
+.key-badge{display:flex;align-items:center;gap:var(--s2);font-size:var(--xs);color:var(--muted);background:var(--surface-off);border:1px solid var(--border);border-radius:var(--r-full);padding:var(--s1) var(--s3)}
+.key-dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex-shrink:0}
+.ico-btn{width:40px;height:40px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;color:var(--muted);position:relative}
 .ico-btn:hover{background:var(--surface-off);color:var(--text)}
+.hist-badge{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--primary);display:none}
+.page{display:none;flex-direction:column;flex:1}
+.page.active{display:flex}
 main{padding:var(--s5);max-width:600px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:var(--s5)}
-
-/* Card */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;box-shadow:var(--sh-sm)}
 .card-hdr{padding:var(--s4) var(--s5);border-bottom:1px solid var(--divider);display:flex;align-items:center;gap:var(--s3)}
 .card-icon{width:36px;height:36px;flex-shrink:0;background:var(--primary-hl);color:var(--primary);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center}
 .card-title{font-size:var(--sm);font-weight:700}
 .card-sub{font-size:var(--xs);color:var(--muted);margin-top:2px}
 .card-body{padding:var(--s5)}
-
-/* Upload */
 .drop-zone{border:2px dashed var(--border);border-radius:var(--r-lg);padding:var(--s8) var(--s5);background:var(--surface2);display:flex;flex-direction:column;align-items:center;gap:var(--s3);cursor:pointer;text-align:center;transition:border-color var(--ease),background var(--ease)}
 .drop-zone:hover,.drop-zone.over{border-color:var(--primary);background:var(--primary-hl)}
 .drop-zone svg{color:var(--faint);transition:color var(--ease)}
@@ -92,13 +89,9 @@ input[type=file]{display:none}
 .pill-name{font-size:var(--sm);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pill-rm{color:var(--faint);padding:var(--s1);border-radius:var(--r-full);flex-shrink:0}
 .pill-rm:hover{color:var(--err);background:var(--err-hl)}
-
-/* Divider */
 .opt-div{display:flex;align-items:center;justify-content:center;gap:var(--s2);color:var(--faint);font-size:var(--xs)}
 .opt-div::before,.opt-div::after{content:'';flex:1;height:1px;background:var(--divider)}
-
-/* Run */
-.run-btn{width:100%;padding:var(--s4);background:var(--primary);color:#fff;font-size:var(--base);font-weight:700;border:none;border-radius:var(--r-lg);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:var(--s3)}
+.run-btn{width:100%;padding:var(--s4);background:var(--primary);color:#fff;font-size:var(--base);font-weight:700;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;gap:var(--s3)}
 .run-btn:hover:not(:disabled){background:var(--primary-h)}
 .run-btn:disabled{opacity:.45;cursor:not-allowed}
 .spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
@@ -106,8 +99,6 @@ input[type=file]{display:none}
 .prog-wrap{background:var(--surface-off);border-radius:var(--r-full);height:6px;overflow:hidden;margin-top:var(--s4);display:none}
 .prog-bar{height:100%;background:var(--primary);width:0%;transition:width .4s ease}
 .prog-lbl{font-size:var(--xs);color:var(--muted);text-align:center;margin-top:var(--s2);display:none}
-
-/* Results */
 .result-card{display:none;flex-direction:column;gap:var(--s4)}
 .tabs{display:flex;gap:var(--s1);background:var(--surface-off);border-radius:var(--r-lg);padding:var(--s1)}
 .tab{flex:1;padding:var(--s2) var(--s3);border-radius:var(--r-md);font-size:var(--sm);font-weight:500;color:var(--muted);text-align:center;cursor:pointer}
@@ -118,342 +109,423 @@ input[type=file]{display:none}
 .result-actions{display:flex;gap:var(--s3)}
 .btn-sec{flex:1;padding:var(--s3);border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface);font-size:var(--sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--s2)}
 .btn-sec:hover{background:var(--surface-off)}
-
-/* Toast */
+.hist-page-hdr{padding:var(--s5) var(--s5) 0;max-width:600px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+.hist-page-title{font-size:var(--lg);font-weight:700}
+.hist-count{font-size:var(--xs);color:var(--muted);background:var(--surface-off);border:1px solid var(--border);border-radius:var(--r-full);padding:var(--s1) var(--s3)}
+.hist-list{padding:var(--s4) var(--s5);max-width:600px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:var(--s3)}
+.hist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s4);padding:var(--s10) var(--s8);text-align:center;color:var(--muted)}
+.hist-empty svg{color:var(--faint)}
+.hist-empty h3{font-size:var(--base);font-weight:700;color:var(--text)}
+.hist-empty p{font-size:var(--sm);max-width:28ch}
+.hist-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:var(--s4) var(--s5);cursor:pointer;transition:box-shadow var(--ease),border-color var(--ease)}
+.hist-item:hover{box-shadow:var(--sh-md);border-color:var(--primary)}
+.hist-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s3)}
+.hist-item-title{font-size:var(--sm);font-weight:700;line-height:1.4}
+.hist-item-del{width:32px;height:32px;border-radius:var(--r-full);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--faint)}
+.hist-item-del:hover{background:var(--err-hl);color:var(--err)}
+.hist-item-meta{display:flex;gap:var(--s3);margin-top:var(--s2);flex-wrap:wrap}
+.meta-chip{font-size:var(--xs);color:var(--muted);display:flex;align-items:center;gap:var(--s1)}
+.hist-item-preview{font-size:var(--xs);color:var(--muted);margin-top:var(--s2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.6}
+.modal-overlay{position:fixed;inset:0;background:oklch(0.2 0.01 80/.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:auto}
+.modal{background:var(--surface);border-radius:var(--r-xl) var(--r-xl) 0 0;width:100%;max-width:600px;max-height:90dvh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-hdr{padding:var(--s5);border-bottom:1px solid var(--divider);display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
+.modal-title{font-size:var(--base);font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.modal-close{width:36px;height:36px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0}
+.modal-close:hover{background:var(--surface-off);color:var(--text)}
+.modal-body{flex:1;overflow-y:auto;padding:var(--s5);display:flex;flex-direction:column;gap:var(--s4)}
+.modal-tabs{display:flex;gap:var(--s1);background:var(--surface-off);border-radius:var(--r-lg);padding:var(--s1)}
+.modal-tab{flex:1;padding:var(--s2) var(--s3);border-radius:var(--r-md);font-size:var(--sm);font-weight:500;color:var(--muted);text-align:center;cursor:pointer}
+.modal-tab.active{background:var(--surface);color:var(--text);box-shadow:var(--sh-sm);font-weight:700}
+.modal-panel{display:none}
+.modal-panel.active{display:block}
+.modal-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-lg);padding:var(--s4);font-size:var(--sm);line-height:1.8;white-space:pre-wrap;word-break:break-word}
+.modal-actions{display:flex;gap:var(--s3);padding:var(--s4) var(--s5);border-top:1px solid var(--divider)}
 .toast{position:fixed;bottom:calc(var(--s6) + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:var(--bg);padding:var(--s3) var(--s5);border-radius:var(--r-full);font-size:var(--sm);font-weight:500;white-space:nowrap;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;z-index:999}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media(max-width:390px){main,.card-body{padding:var(--s4)}}
+@media(max-width:390px){main,.card-body,.hist-list,.hist-page-hdr{padding-left:var(--s4);padding-right:var(--s4)}}
 </style>
 </head>
 <body>
 
-<!-- ═══════════ AUTH ═══════════ -->
-<div id="auth">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <svg width="34" height="34" viewBox="0 0 34 34" fill="none">
-        <rect width="34" height="34" rx="9" fill="currentColor" opacity=".12"/>
-        <path d="M8 10h12M8 15.5h9M8 21h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="25" cy="14" r="5.5" stroke="currentColor" stroke-width="2"/>
-        <path d="M25 11.5v5M22.5 14h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+<div id="setup">
+  <div class="setup-card">
+    <div class="setup-logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="10" fill="currentColor" opacity=".12"/>
+        <path d="M9 11h13M9 17h10M9 23h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="26" cy="15" r="6" stroke="currentColor" stroke-width="2"/>
+        <path d="M26 12v6M23 15h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <span>講義まとめAI</span>
     </div>
-    <p class="auth-desc">プライベート利用専用アプリ</p>
-    <div class="field">
-      <label for="inp-pw">パスワード</label>
-      <input type="password" id="inp-pw" placeholder="パスワードを入力" autocomplete="current-password">
-    </div>
+    <p class="setup-desc">Gemini APIキーを入力するだけで<br>すぐに使えます</p>
     <div class="field">
       <label for="inp-key">Gemini APIキー</label>
-      <input type="password" id="inp-key" placeholder="AIza..." autocomplete="off">
+      <input type="password" id="inp-key" placeholder="AIza..." autocomplete="off" spellcheck="false">
     </div>
-    <p class="err-msg" id="auth-err"></p>
-    <button class="btn-login" id="btn-login">ログイン</button>
-    <p class="privacy-note">パスワードとAPIキーはこのデバイスのメモリにのみ保持されます。外部には一切送信されません。</p>
+    <p class="err-msg" id="setup-err"></p>
+    <button class="btn-start" id="btn-start">はじめる</button>
+    <p class="key-hint">APIキーは <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a> で無料取得できます。<br>キーはこのデバイスのメモリにのみ保存されます。</p>
   </div>
 </div>
 
-<!-- ═══════════ APP ═══════════ -->
 <div id="app" class="hidden">
   <header class="hdr">
     <div class="hdr-logo">
-      <svg width="28" height="28" viewBox="0 0 34 34" fill="none">
-        <rect width="34" height="34" rx="9" fill="var(--primary)" opacity=".15"/>
-        <path d="M8 10h12M8 15.5h9M8 21h11" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
-        <circle cx="25" cy="14" r="5.5" stroke="var(--primary)" stroke-width="2"/>
-        <path d="M25 11.5v5M22.5 14h5" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round"/>
+      <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+        <rect width="36" height="36" rx="10" fill="var(--primary)" opacity=".15"/>
+        <path d="M9 11h13M9 17h10M9 23h12" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="26" cy="15" r="6" stroke="var(--primary)" stroke-width="2"/>
+        <path d="M26 12v6M23 15h6" stroke="var(--primary)" stroke-width="1.5" stroke-linecap="round"/>
       </svg>
       <span>講義まとめAI</span>
     </div>
     <div class="hdr-btns">
+      <div class="key-badge"><span class="key-dot"></span><span>API接続済み</span></div>
+      <button class="ico-btn" id="btn-hist" aria-label="履歴">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+        <span class="hist-badge" id="hist-badge"></span>
+      </button>
       <button class="ico-btn" id="btn-theme" aria-label="テーマ切替">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
       </button>
-      <button class="ico-btn" id="btn-logout" aria-label="ログアウト">
+      <button class="ico-btn" id="btn-logout" aria-label="APIキーを変更">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
       </button>
     </div>
   </header>
 
-  <main>
-    <!-- ① Audio -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/>
-          </svg>
+  <div class="page active" id="page-home">
+    <main>
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3M8 22h8"/></svg>
+          </div>
+          <div><p class="card-title">① 音声ファイル</p><p class="card-sub">授業の録音をアップロード（必須）</p></div>
         </div>
-        <div>
-          <p class="card-title">① 音声ファイル</p>
-          <p class="card-sub">授業の録音をアップロード（必須）</p>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="drop-zone" id="dz-audio" role="button" tabindex="0">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-          <p class="dz-label">タップして音声ファイルを選択</p>
-          <p class="dz-hint">MP3 / M4A / WAV / MP4 / WebM（最大20MB）</p>
-        </div>
-        <input type="file" id="fi-audio" accept="audio/*,video/mp4,video/webm">
-        <div class="pill hidden" id="pill-audio">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/></svg>
-          <span class="pill-name" id="pn-audio"></span>
-          <button class="pill-rm" id="rm-audio" aria-label="削除"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        <div class="card-body">
+          <div class="drop-zone" id="dz-audio" role="button" tabindex="0">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <p class="dz-label">タップして音声ファイルを選択</p>
+            <p class="dz-hint">MP3 / M4A / WAV / MP4（最大20MB）</p>
+          </div>
+          <input type="file" id="fi-audio" accept="audio/*,video/mp4,video/webm">
+          <div class="pill hidden" id="pill-audio">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/></svg>
+            <span class="pill-name" id="pn-audio"></span>
+            <button class="pill-rm" id="rm-audio" aria-label="削除"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
         </div>
       </div>
+
+      <div class="opt-div">＋ 講義資料を追加（任意）</div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div><p class="card-title">② 講義資料 <span style="font-weight:400;color:var(--muted)">（任意）</span></p><p class="card-sub">添付すると要約精度がさらに上がります</p></div>
+        </div>
+        <div class="card-body">
+          <div class="drop-zone" id="dz-doc" role="button" tabindex="0">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <p class="dz-label">タップして資料ファイルを選択</p>
+            <p class="dz-hint">PDF / TXT / Markdown</p>
+          </div>
+          <input type="file" id="fi-doc" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown">
+          <div class="pill hidden" id="pill-doc">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span class="pill-name" id="pn-doc"></span>
+            <button class="pill-rm" id="rm-doc" aria-label="削除"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <button class="run-btn" id="run-btn" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span id="run-lbl">音声ファイルを選択してください</span>
+      </button>
+      <div class="prog-wrap" id="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+      <p class="prog-lbl" id="prog-lbl"></p>
+
+      <div class="card result-card" id="result-card">
+        <div class="card-hdr">
+          <div class="card-icon" style="background:var(--ok-hl);color:var(--ok)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div><p class="card-title">結果</p><p class="card-sub" id="result-sub"></p></div>
+        </div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:var(--s4)">
+          <div class="tabs">
+            <button class="tab active" data-tab="summary">📝 要約</button>
+            <button class="tab" data-tab="transcript">🗒️ 文字起こし</button>
+          </div>
+          <div class="panel active" id="panel-summary"><div class="result-box" id="box-summary"></div></div>
+          <div class="panel" id="panel-transcript"><div class="result-box" id="box-transcript"></div></div>
+          <div class="result-actions">
+            <button class="btn-sec" id="btn-copy">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>コピー
+            </button>
+            <button class="btn-sec" id="btn-reset">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>リセット
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="page" id="page-hist">
+    <div class="hist-page-hdr">
+      <p class="hist-page-title">📚 履歴</p>
+      <span class="hist-count" id="hist-count">0件</span>
     </div>
+    <div class="hist-list" id="hist-list"></div>
+  </div>
+</div>
 
-    <div class="opt-div">＋ 講義資料を追加（任意）</div>
-
-    <!-- ② Document -->
-    <div class="card">
-      <div class="card-hdr">
-        <div class="card-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="16" y1="13" x2="8" y2="13"/>
-            <line x1="16" y1="17" x2="8" y2="17"/>
-          </svg>
-        </div>
-        <div>
-          <p class="card-title">② 講義資料 <span style="font-weight:400;color:var(--muted)">（任意）</span></p>
-          <p class="card-sub">添付すると要約精度がさらに上がります</p>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="drop-zone" id="dz-doc" role="button" tabindex="0">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
-          <p class="dz-label">タップして資料ファイルを選択</p>
-          <p class="dz-hint">PDF / TXT / Markdown</p>
-        </div>
-        <input type="file" id="fi-doc" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown">
-        <div class="pill hidden" id="pill-doc">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          <span class="pill-name" id="pn-doc"></span>
-          <button class="pill-rm" id="rm-doc" aria-label="削除"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-        </div>
-      </div>
+<div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-hdr">
+      <p class="modal-title" id="modal-title"></p>
+      <button class="modal-close" id="modal-close" aria-label="閉じる">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
-
-    <!-- Run -->
-    <button class="run-btn" id="run-btn" disabled>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      <span id="run-lbl">音声ファイルを選択してください</span>
-    </button>
-    <div class="prog-wrap" id="prog-wrap"><div class="prog-bar" id="prog-bar"></div></div>
-    <p class="prog-lbl" id="prog-lbl"></p>
-
-    <!-- Results -->
-    <div class="card result-card" id="result-card">
-      <div class="card-hdr">
-        <div class="card-icon" style="background:var(--ok-hl);color:var(--ok)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        </div>
-        <div>
-          <p class="card-title">結果</p>
-          <p class="card-sub" id="result-sub"></p>
-        </div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-mtab="summary">📝 要約</button>
+        <button class="modal-tab" data-mtab="transcript">🗒️ 文字起こし</button>
       </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:var(--s4)">
-        <div class="tabs">
-          <button class="tab active" data-tab="summary">📝 要約</button>
-          <button class="tab" data-tab="transcript">🗒️ 文字起こし</button>
-        </div>
-        <div class="panel active" id="panel-summary"><div class="result-box" id="box-summary"></div></div>
-        <div class="panel" id="panel-transcript"><div class="result-box" id="box-transcript"></div></div>
-        <div class="result-actions">
-          <button class="btn-sec" id="btn-copy">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            コピー
-          </button>
-          <button class="btn-sec" id="btn-reset">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
-            リセット
-          </button>
-        </div>
-      </div>
+      <div class="modal-panel active" id="mpanel-summary"><div class="modal-box" id="mbox-summary"></div></div>
+      <div class="modal-panel" id="mpanel-transcript"><div class="modal-box" id="mbox-transcript"></div></div>
     </div>
-  </main>
+    <div class="modal-actions">
+      <button class="btn-sec" id="modal-copy">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>コピー
+      </button>
+      <button class="btn-sec" id="modal-export">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>テキスト保存
+      </button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
 <script>
-// =============================================
-// ▼ ここを自分のパスワードに変更してください ▼
-const APP_PW = "smm1529";
-// ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
-// =============================================
+let API_KEY="",audioFile=null,docFile=null;
+let dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
+let currentModal=null;
+const $=id=>document.getElementById(id);
 
-let API_KEY = "", audioFile = null, docFile = null;
-let dark = window.matchMedia("(prefers-color-scheme:dark)").matches;
-const $ = id => document.getElementById(id);
+const DB_NAME="lecture-ai-db",DB_VER=1,STORE="history";
+let db;
+function openDB(){
+  return new Promise((ok,ng)=>{
+    const req=indexedDB.open(DB_NAME,DB_VER);
+    req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains(STORE)){d.createObjectStore(STORE,{keyPath:"id",autoIncrement:true}).createIndex("createdAt","createdAt");}};
+    req.onsuccess=e=>{db=e.target.result;ok(db);};
+    req.onerror=()=>ng(req.error);
+  });
+}
+function dbAdd(r){return new Promise((ok,ng)=>{const req=db.transaction(STORE,"readwrite").objectStore(STORE).add(r);req.onsuccess=()=>ok(req.result);req.onerror=()=>ng(req.error);});}
+function dbGetAll(){return new Promise((ok,ng)=>{const req=db.transaction(STORE,"readonly").objectStore(STORE).getAll();req.onsuccess=()=>ok(req.result.reverse());req.onerror=()=>ng(req.error);});}
+function dbDelete(id){return new Promise((ok,ng)=>{const req=db.transaction(STORE,"readwrite").objectStore(STORE).delete(id);req.onsuccess=()=>ok();req.onerror=()=>ng(req.error);});}
 
-/* Helpers */
-function toast(msg, ms=2800) {
-  const el=$("toast"); el.textContent=msg; el.classList.add("show");
-  setTimeout(()=>el.classList.remove("show"), ms);
-}
-function setProgress(pct, label) {
-  $("prog-wrap").style.display="block"; $("prog-lbl").style.display="block";
-  $("prog-bar").style.width=pct+"%"; $("prog-lbl").textContent=label;
-}
-function clearProgress() {
-  $("prog-wrap").style.display=$("prog-lbl").style.display="none";
-  $("prog-bar").style.width="0%";
-}
-function fileToB64(f) {
-  return new Promise((ok,ng)=>{ const r=new FileReader(); r.onload=()=>ok(r.result.split(",")[1]); r.onerror=ng; r.readAsDataURL(f); });
-}
-function guessMime(f) {
-  if(f.type) return f.type;
-  const m={mp3:"audio/mpeg",m4a:"audio/mp4",mp4:"audio/mp4",wav:"audio/wav",webm:"audio/webm",ogg:"audio/ogg",aac:"audio/aac"};
-  return m[f.name.split(".").pop().toLowerCase()]||"audio/mpeg";
-}
+function toast(msg,ms=2800){const el=$("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),ms);}
+function setProgress(pct,label){$("prog-wrap").style.display="block";$("prog-lbl").style.display="block";$("prog-bar").style.width=pct+"%";$("prog-lbl").textContent=label;}
+function clearProgress(){$("prog-wrap").style.display=$("prog-lbl").style.display="none";$("prog-bar").style.width="0%";}
+function fileToB64(f){return new Promise((ok,ng)=>{const r=new FileReader();r.onload=()=>ok(r.result.split(",")[1]);r.onerror=ng;r.readAsDataURL(f);});}
+function guessMime(f){if(f.type)return f.type;const m={mp3:"audio/mpeg",m4a:"audio/mp4",mp4:"audio/mp4",wav:"audio/wav",webm:"audio/webm",ogg:"audio/ogg",aac:"audio/aac"};return m[f.name.split(".").pop().toLowerCase()]||"audio/mpeg";}
+function fmtDate(ts){const d=new Date(ts);return`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;}
+function escHtml(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function copyText(text){navigator.clipboard.writeText(text).then(()=>toast("コピーしました ✓")).catch(()=>{const ta=document.createElement("textarea");ta.value=text;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);toast("コピーしました ✓");});}
 
-/* Theme */
-function applyTheme() {
-  document.documentElement.setAttribute("data-theme", dark?"dark":"light");
-  $("btn-theme").innerHTML = dark
-    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`
-    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+function applyTheme(){
+  document.documentElement.setAttribute("data-theme",dark?"dark":"light");
+  $("btn-theme").innerHTML=dark
+    ?`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`
+    :`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
 }
-$("btn-theme").addEventListener("click", ()=>{ dark=!dark; applyTheme(); });
+$("btn-theme").addEventListener("click",()=>{dark=!dark;applyTheme();});
 applyTheme();
 
-/* Auth */
-$("btn-login").addEventListener("click", login);
-$("inp-pw").addEventListener("keydown",  e=>{ if(e.key==="Enter") $("inp-key").focus(); });
-$("inp-key").addEventListener("keydown", e=>{ if(e.key==="Enter") login(); });
-function login() {
-  const pw=$("inp-pw").value.trim(), key=$("inp-key").value.trim(), err=$("auth-err");
-  if(pw!==APP_PW){ err.textContent="パスワードが正しくありません"; err.style.display="block"; $("inp-pw").focus(); return; }
-  if(!key.startsWith("AIza")){ err.textContent="APIキーが正しくありません（AIzaから始まります）"; err.style.display="block"; $("inp-key").focus(); return; }
-  API_KEY=key; $("auth").classList.add("hidden"); $("app").classList.remove("hidden");
+$("btn-start").addEventListener("click",startApp);
+$("inp-key").addEventListener("keydown",e=>{if(e.key==="Enter")startApp();});
+function startApp(){
+  const key=$("inp-key").value.trim(),err=$("setup-err");
+  if(!key.startsWith("AIza")){err.textContent="APIキーが正しくありません（AIzaから始まります）";err.style.display="block";$("inp-key").focus();return;}
+  API_KEY=key;$("setup").classList.add("hidden");$("app").classList.remove("hidden");renderHistory();
 }
-$("btn-logout").addEventListener("click", ()=>{
-  API_KEY=""; audioFile=docFile=null;
-  $("inp-pw").value=$("inp-key").value=""; $("auth-err").style.display="none";
-  $("app").classList.add("hidden"); $("auth").classList.remove("hidden");
-  resetUI();
+$("btn-logout").addEventListener("click",()=>{
+  API_KEY="";audioFile=docFile=null;$("inp-key").value="";$("setup-err").style.display="none";
+  $("app").classList.add("hidden");$("setup").classList.remove("hidden");resetUI();showPage("home");
 });
 
-/* File upload */
-function bindUpload(dzId, fiId, pillId, pnId, rmId, setter) {
-  const dz=$(dzId), fi=$(fiId), pill=$(pillId), pn=$(pnId), rm=$(rmId);
-  dz.addEventListener("click",   ()=>fi.click());
-  dz.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" ") fi.click(); });
-  dz.addEventListener("dragover",  e=>{ e.preventDefault(); dz.classList.add("over"); });
-  dz.addEventListener("dragleave", ()=>dz.classList.remove("over"));
-  dz.addEventListener("drop", e=>{ e.preventDefault(); dz.classList.remove("over"); if(e.dataTransfer.files[0]) pick(e.dataTransfer.files[0]); });
-  fi.addEventListener("change", ()=>{ if(fi.files[0]) pick(fi.files[0]); });
-  rm.addEventListener("click",  e=>{ e.stopPropagation(); clear(); });
-  function pick(f){ pn.textContent=f.name; pill.classList.remove("hidden"); dz.style.display="none"; setter(f); refreshRunBtn(); }
-  function clear(){ pill.classList.add("hidden"); dz.style.display=""; fi.value=""; setter(null); refreshRunBtn(); }
-}
-bindUpload("dz-audio","fi-audio","pill-audio","pn-audio","rm-audio", f=>audioFile=f);
-bindUpload("dz-doc",  "fi-doc",  "pill-doc",  "pn-doc",  "rm-doc",  f=>docFile=f);
+function showPage(name){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));$("page-"+name).classList.add("active");}
+$("btn-hist").addEventListener("click",()=>{
+  if($("page-hist").classList.contains("active")){showPage("home");}
+  else{renderHistory();showPage("hist");}
+});
 
-function refreshRunBtn() {
-  const btn=$("run-btn"), lbl=$("run-lbl");
-  btn.disabled=!audioFile;
-  lbl.textContent=audioFile?"文字起こし＋要約を実行":"音声ファイルを選択してください";
+function bindUpload(dzId,fiId,pillId,pnId,rmId,setter){
+  const dz=$(dzId),fi=$(fiId),pill=$(pillId),pn=$(pnId),rm=$(rmId);
+  dz.addEventListener("click",()=>fi.click());
+  dz.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" ")fi.click();});
+  dz.addEventListener("dragover",e=>{e.preventDefault();dz.classList.add("over");});
+  dz.addEventListener("dragleave",()=>dz.classList.remove("over"));
+  dz.addEventListener("drop",e=>{e.preventDefault();dz.classList.remove("over");if(e.dataTransfer.files[0])pick(e.dataTransfer.files[0]);});
+  fi.addEventListener("change",()=>{if(fi.files[0])pick(fi.files[0]);});
+  rm.addEventListener("click",e=>{e.stopPropagation();clear();});
+  function pick(f){pn.textContent=f.name;pill.classList.remove("hidden");dz.style.display="none";setter(f);refreshRunBtn();}
+  function clear(){pill.classList.add("hidden");dz.style.display="";fi.value="";setter(null);refreshRunBtn();}
 }
+bindUpload("dz-audio","fi-audio","pill-audio","pn-audio","rm-audio",f=>audioFile=f);
+bindUpload("dz-doc","fi-doc","pill-doc","pn-doc","rm-doc",f=>docFile=f);
+function refreshRunBtn(){$("run-btn").disabled=!audioFile;$("run-lbl").textContent=audioFile?"文字起こし＋要約を実行":"音声ファイルを選択してください";}
 
-/* Tabs */
 document.querySelectorAll(".tab").forEach(tab=>{
-  tab.addEventListener("click", ()=>{
+  tab.addEventListener("click",()=>{
     document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
     document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
-    tab.classList.add("active"); $("panel-"+tab.dataset.tab).classList.add("active");
+    tab.classList.add("active");$("panel-"+tab.dataset.tab).classList.add("active");
   });
 });
 
-/* Pipeline */
-$("run-btn").addEventListener("click", run);
-async function run() {
-  if(!audioFile||!API_KEY) return;
-  const btn=$("run-btn"), lbl=$("run-lbl");
-  btn.disabled=true; lbl.innerHTML='<span class="spin"></span> 処理中...';
-  $("result-card").style.display="none"; clearProgress();
-  try {
-    setProgress(10, "音声ファイルを読み込み中...");
-    const audioB64=await fileToB64(audioFile);
-
-    setProgress(35, "Geminiで文字起こし中...");
-    const transcript = await geminiCall([
-      { inline_data: { mime_type: guessMime(audioFile), data: audioB64 } },
-      { text: "以下の音声を日本語で正確に文字起こししてください。話者が複数いる場合は「話者A:」のように区別してください。句読点・改行を適切に付けてください。文字起こしのテキストのみ出力してください。" }
-    ]);
-
-    setProgress(68, "Geminiで要約中...");
-    const parts = [];
-    if(docFile) {
-      const docB64=await fileToB64(docFile);
-      const docMime=docFile.type||(docFile.name.endsWith(".pdf")?"application/pdf":"text/plain");
-      parts.push({ inline_data: { mime_type: docMime, data: docB64 } });
-    }
-    let prompt = "以下は授業の文字起こしです。";
-    if(docFile) prompt += "また、講義資料も添付しています。文字起こしと資料を照らし合わせ、";
-    prompt += `\n授業内容を以下の形式で日本語でまとめてください：\n\n【授業テーマ】\n（一文で）\n\n【重要ポイント】\n•（箇条書きで5〜8点）\n\n【キーワード・用語】\n（重要な専門用語と簡単な説明）\n\n【まとめ】\n（3〜4文で全体を総括）\n\n===文字起こし===\n${transcript}`;
-    parts.push({ text: prompt });
-    const summary = await geminiCall(parts);
-
-    setProgress(100, "完了！"); setTimeout(clearProgress, 900);
-    $("box-transcript").textContent = transcript;
-    $("box-summary").textContent    = summary;
-    $("result-sub").textContent     = audioFile.name + (docFile?" ＋ "+docFile.name:"");
-    $("result-card").style.display  = "flex";
-    $("result-card").scrollIntoView({ behavior:"smooth", block:"start" });
-  } catch(e) {
-    clearProgress(); toast("エラー: "+(e.message||"不明なエラー"), 5000); console.error(e);
-  } finally {
-    btn.disabled=false; lbl.textContent="文字起こし＋要約を実行"; refreshRunBtn();
-  }
-}
-
-async function geminiCall(parts) {
+async function geminiCall(parts){
   const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
-  const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})});
-  if(!res.ok){
-    const b=await res.json().catch(()=>({}));
-    const m=b?.error?.message||res.statusText;
-    if(res.status===403) throw new Error("APIキーが無効です。Google AI StudioでAPIキーを確認してください。");
-    if(res.status===429) throw new Error("APIレート制限に達しました。しばらく待ってから再試行してください。");
-    throw new Error("Gemini APIエラー ("+res.status+"): "+m);
-  }
-  const data=await res.json();
-  const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if(!text) throw new Error("Geminiから空の返答が返されました。");
-  return text;
+  const res=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({contents:[{parts}],generationConfig:{temperature:0.2,maxOutputTokens:8192}})});
+  if(!res.ok){const b=await res.json().catch(()=>({}));const m=b?.error?.message||res.statusText;if(res.status===403)throw new Error("APIキーが無効です。");if(res.status===429)throw new Error("APIレート制限。しばらく待ってから再試行してください。");throw new Error("Gemini APIエラー ("+res.status+"): "+m);}
+  const data=await res.json();const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if(!text)throw new Error("Geminiから空の返答が返されました。");return text;
 }
 
-/* Copy & Reset */
-$("btn-copy").addEventListener("click", ()=>{
-  const tab=document.querySelector(".tab.active").dataset.tab;
-  const text=tab==="summary"?$("box-summary").textContent:$("box-transcript").textContent;
-  navigator.clipboard.writeText(text).then(()=>toast("コピーしました ✓")).catch(()=>{
-    const ta=document.createElement("textarea"); ta.value=text;
-    ta.style.cssText="position:fixed;opacity:0"; document.body.appendChild(ta);
-    ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
-    toast("コピーしました ✓");
+$("run-btn").addEventListener("click",run);
+async function run(){
+  if(!audioFile||!API_KEY)return;
+  const btn=$("run-btn"),lbl=$("run-lbl");
+  btn.disabled=true;lbl.innerHTML='<span class="spin"></span> 処理中...';
+  $("result-card").style.display="none";clearProgress();
+  try{
+    setProgress(10,"音声ファイルを読み込み中...");
+    const audioB64=await fileToB64(audioFile);
+    setProgress(35,"Geminiで文字起こし中...");
+    const transcript=await geminiCall([
+      {inline_data:{mime_type:guessMime(audioFile),data:audioB64}},
+      {text:"以下の音声を日本語で正確に文字起こししてください。話者が複数いる場合は「話者A:」のように区別してください。句読点・改行を適切に付けてください。文字起こしのテキストのみ出力してください。"}
+    ]);
+    setProgress(68,"Geminiで要約中...");
+    const parts=[];
+    if(docFile){const docB64=await fileToB64(docFile);const docMime=docFile.type||(docFile.name.endsWith(".pdf")?"application/pdf":"text/plain");parts.push({inline_data:{mime_type:docMime,data:docB64}});}
+    let prompt="以下は授業の文字起こしです。";
+    if(docFile)prompt+="また、講義資料も添付しています。文字起こしと資料を照らし合わせ、";
+    prompt+="\n授業内容を以下の形式で日本語でまとめてください：\n\n【授業テーマ】\n（一文で）\n\n【重要ポイント】\n•（箇条書きで5〜8点）\n\n【キーワード・用語】\n（重要な専門用語と簡単な説明）\n\n【まとめ】\n（3〜4文で全体を総括）\n\n===文字起こし===\n"+transcript;
+    parts.push({text:prompt});
+    const summary=await geminiCall(parts);
+    setProgress(90,"履歴に保存中...");
+    const titleMatch=summary.match(/【授業テーマ】\s*\n([^\n]+)/);
+    const title=titleMatch?titleMatch[1].trim():audioFile.name.replace(/\.[^.]+$/,"");
+    await dbAdd({title,summary,transcript,fileName:audioFile.name,docName:docFile?docFile.name:null,createdAt:Date.now()});
+    updateHistBadge();
+    setProgress(100,"完了！");setTimeout(clearProgress,900);
+    $("box-transcript").textContent=transcript;
+    $("box-summary").textContent=summary;
+    $("result-sub").textContent=audioFile.name+(docFile?" ＋ "+docFile.name:"");
+    $("result-card").style.display="flex";
+    $("result-card").scrollIntoView({behavior:"smooth",block:"start"});
+    toast("✅ 履歴に保存しました");
+  }catch(e){clearProgress();toast("エラー: "+(e.message||"不明なエラー"),5000);console.error(e);}
+  finally{btn.disabled=false;lbl.textContent="文字起こし＋要約を実行";refreshRunBtn();}
+}
+
+async function renderHistory(){
+  const list=$("hist-list");
+  const items=await dbGetAll();
+  $("hist-count").textContent=items.length+"件";
+  if(items.length===0){
+    list.innerHTML=`<div class="hist-empty"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg><h3>履歴はまだありません</h3><p>授業を要約すると、ここに自動で保存されます</p></div>`;
+    return;
+  }
+  list.innerHTML=items.map(item=>`
+    <div class="hist-item" data-id="${item.id}">
+      <div class="hist-item-top">
+        <p class="hist-item-title">${escHtml(item.title)}</p>
+        <button class="hist-item-del" data-del="${item.id}" aria-label="削除"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m5 0V4h4v2"/></svg></button>
+      </div>
+      <div class="hist-item-meta">
+        <span class="meta-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${fmtDate(item.createdAt)}</span>
+        <span class="meta-chip"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/></svg>${escHtml(item.fileName)}</span>
+      </div>
+      <p class="hist-item-preview">${escHtml(item.summary.slice(0,120))}...</p>
+    </div>`).join("");
+  list.querySelectorAll(".hist-item").forEach(el=>{
+    el.addEventListener("click",e=>{
+      if(e.target.closest("[data-del]"))return;
+      const item=items.find(i=>i.id===Number(el.dataset.id));
+      if(item)openModal(item);
+    });
+  });
+  list.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.addEventListener("click",async e=>{
+      e.stopPropagation();
+      await dbDelete(Number(btn.dataset.del));
+      updateHistBadge();renderHistory();toast("削除しました");
+    });
+  });
+}
+
+async function updateHistBadge(){const items=await dbGetAll();$("hist-badge").style.display=items.length>0?"block":"none";}
+
+function openModal(item){
+  currentModal=item;
+  $("modal-title").textContent=item.title;
+  $("mbox-summary").textContent=item.summary;
+  $("mbox-transcript").textContent=item.transcript;
+  document.querySelectorAll(".modal-tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".modal-panel").forEach(p=>p.classList.remove("active"));
+  document.querySelector(".modal-tab[data-mtab='summary']").classList.add("active");
+  $("mpanel-summary").classList.add("active");
+  $("modal-overlay").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function closeModal(){$("modal-overlay").classList.remove("open");document.body.style.overflow="";currentModal=null;}
+$("modal-close").addEventListener("click",closeModal);
+$("modal-overlay").addEventListener("click",e=>{if(e.target===$("modal-overlay"))closeModal();});
+document.querySelectorAll(".modal-tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".modal-tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".modal-panel").forEach(p=>p.classList.remove("active"));
+    tab.classList.add("active");$("mpanel-"+tab.dataset.mtab).classList.add("active");
   });
 });
-$("btn-reset").addEventListener("click", resetUI);
-function resetUI() {
+$("modal-copy").addEventListener("click",()=>{if(!currentModal)return;const t=document.querySelector(".modal-tab.active").dataset.mtab;copyText(t==="summary"?currentModal.summary:currentModal.transcript);});
+$("modal-export").addEventListener("click",()=>{
+  if(!currentModal)return;
+  const text=`【${currentModal.title}】\n保存日時: ${fmtDate(currentModal.createdAt)}\nファイル: ${currentModal.fileName}\n\n${"=".repeat(40)}\n要約\n${"=".repeat(40)}\n${currentModal.summary}\n\n${"=".repeat(40)}\n文字起こし\n${"=".repeat(40)}\n${currentModal.transcript}`;
+  const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download=`${currentModal.title}_${fmtDate(currentModal.createdAt).replace(/[/:]/g,"-").replace(" ","-")}.txt`;
+  a.click();URL.revokeObjectURL(a.href);toast("テキストファイルを保存しました");
+});
+
+$("btn-copy").addEventListener("click",()=>{const tab=document.querySelector(".tab.active").dataset.tab;copyText(tab==="summary"?$("box-summary").textContent:$("box-transcript").textContent);});
+$("btn-reset").addEventListener("click",resetUI);
+function resetUI(){
   audioFile=docFile=null;
   ["pill-audio","pill-doc"].forEach(id=>$(id).classList.add("hidden"));
   $("dz-audio").style.display=$("dz-doc").style.display="";
   $("fi-audio").value=$("fi-doc").value="";
   $("result-card").style.display="none";
   $("box-summary").textContent=$("box-transcript").textContent="";
-  clearProgress(); refreshRunBtn();
+  clearProgress();refreshRunBtn();
 }
+
+openDB().then(updateHistBadge).catch(e=>console.warn("IndexedDB:",e));
 </script>
 </body>
 </html>
